@@ -33,15 +33,37 @@ Chọn `decision` vì recruiter đã đi qua Problem → Evidence → Insight �
 
 | Event | Fire khi | Properties |
 | :---- | :---- | :---- |
-| `portfolio_viewed` | Public homepage được load bởi non-admin visitor | `utm_source`, `utm_medium`, `utm_campaign`, `device_type` |
-| `case_study_opened` | Non-admin visitor mở một case đang `published` | `case_id`, `case_name`, `entry_source`, `display_position` |
-| `case_section_viewed` | Một section của published case đạt rule ≥50% viewport và ≥2 giây | `case_id`, `section_id`, `section_index` |
+| `portfolio_viewed` | Public homepage được load bởi non-admin visitor — tối đa 1 lần / browser session | `utm_source`, `utm_medium`, `utm_campaign`, `device_type` |
+| `case_study_opened` | Non-admin visitor mở một case đang `published` — tối đa 1 lần / case / browser session | `case_id`, `case_name`, `entry_source`, `display_position` |
+| `case_section_viewed` | Một section của published case đạt điều kiện visible (mục 5) liên tục ≥2 giây | `case_id`, `section_id`, `section_index` |
 | `case_study_completed` | `completion_section` của published case qualify | `case_id` |
-| `high_intent_action` | Non-admin visitor click CTA quan trọng trên public website | `action`, `location`, `case_id` (nullable) |
+| `high_intent_action` | Non-admin visitor click CTA quan trọng trên public website — mỗi click đều fire, không deduplicate | `action`, `location`, `case_id` (nullable) |
 
 Không tạo event riêng theo từng case và không tạo event mới khi Admin thêm case study.
 
 Mọi case sử dụng chung 5 event và được phân biệt bằng `case_id`.
+
+### **Deduplication theo browser session (đã chốt)**
+
+| Event | Deduplication | Deduplication key |
+| :---- | :---- | :---- |
+| `portfolio_viewed` | Tối đa 1 lần / browser session | `viewed_portfolio` |
+| `case_study_opened` | Tối đa 1 lần / case / browser session | `opened_case:{case_id}` |
+| `case_section_viewed` | Tối đa 1 lần / case \+ section / browser session (mục 5) | `viewed_section:{case_id}:{section_id}` |
+| `case_study_completed` | Tự động tối đa 1 lần / case / browser session, vì chỉ fire sau `case_section_viewed` của `completion_section` đã qua deduplication | — |
+| `high_intent_action` | **Không deduplicate** — mỗi click hợp lệ đều fire | — |
+
+Quy tắc:
+
+* Dùng cùng cơ chế với mục 5: in-memory `Set` \+ `sessionStorage`.  
+* Refresh homepage hoặc quay lại homepage (Back to homepage, browser back/forward) trong cùng session: không fire lại `portfolio_viewed`.  
+* Mở lại cùng case trong cùng session (refresh, back/forward, click lại từ homepage hoặc Next case): không fire lại `case_study_opened`.  
+* `case_study_opened` giữ nguyên `entry_source` và `display_position` của lần mở đầu tiên trong session. Lần mở lại không gửi event mới nên không ghi đè các giá trị này, kể cả khi Admin đã reorder case trong lúc đó.  
+* Mở một case khác trong cùng session vẫn fire `case_study_opened` cho case đó.  
+* Browser session mới: có thể fire lại.  
+* Deduplication key chỉ được ghi sau khi event thực sự được gửi (đã qua kiểm tra environment/admin/preview/status). Lượt xem bị chặn tracking không chiếm key.
+
+Diễn giải metric: **Case Opens** \= số cặp (browser session, `case_id`) duy nhất. Case Open Rate, Engaged Case Rate và Case Completion Rate dùng định nghĩa này.
 
 ### **Điều kiện được phép tracking**
 
@@ -157,16 +179,37 @@ Tách biệt 2 khái niệm:
 
 | Tình huống | Xử lý |
 | :---- | :---- |
-| Section visible ≥50% | Start timer |
-| Visible liên tục ≥2 giây | Fire `case_section_viewed` |
-| Visible giảm xuống dưới 50% trước 2 giây | Hủy timer |
+| Section đạt điều kiện visible (xem bên dưới) | Start timer |
+| Đạt điều kiện visible liên tục ≥2 giây | Fire `case_section_viewed` |
+| Không còn đạt điều kiện visible trước 2 giây | Hủy timer |
 | User chuyển sang tab khác | Hủy hoặc pause timer |
-| User quay lại tab | Start lại nếu section vẫn visible ≥50% và chưa qualify |
+| User quay lại tab | Start lại nếu section vẫn đạt điều kiện visible và chưa qualify |
 | Scroll nhanh qua section | Không fire |
 | User rời page trước 2 giây | Không fire |
 | User xem lại section trong cùng session | Không fire lại |
 | Refresh page trong cùng session | Không fire lại |
 | Bắt đầu browser session mới | Có thể track lại |
+
+### **Điều kiện visible (đã chốt — áp dụng cả cho section cao hơn viewport)**
+
+Section đạt điều kiện visible khi thỏa **ít nhất một** trong hai điều kiện:
+
+1. ≥50% section nằm trong viewport (intersection ratio ≥ 0.5); **hoặc**  
+2. Phần visible của section chiếm ≥50% chiều cao viewport.
+
+Điều kiện phải được duy trì liên tục 2 giây. Nếu cả hai điều kiện đều không còn đúng trước khi đủ 2 giây → hủy timer.
+
+Lý do: section cao hơn 2 lần viewport (thường gặp trên mobile với Decision, Solution, Experience) không bao giờ có ≥50% section visible. Nếu chỉ dùng điều kiện 1, reach của `decision` (North Star) sẽ bị đếm thiếu mà không có lỗi nào.
+
+Ví dụ với viewport cao 800px (điều kiện 2 \= phần visible ≥400px):
+
+| Chiều cao section | Phần visible | Điều kiện 1 | Điều kiện 2 | Qualify? |
+| :---- | :---- | :---: | :---: | :---: |
+| 600px | 300px | ✅ (50%) | ❌ | ✅ |
+| 600px | 250px | ❌ (42%) | ❌ | ❌ |
+| 1200px | 500px | ❌ (42%) | ✅ | ✅ |
+| 2400px | 800px (lấp đầy viewport) | ❌ (33%) | ✅ | ✅ |
+| 2400px | 300px | ❌ (13%) | ❌ | ❌ |
 
 ### **Implementation bắt buộc**
 
@@ -208,7 +251,7 @@ Khi event qualify:
 
 Mỗi case khai báo `completion_section` (mặc định `reflection`).
 
-**Flow:** `completion_section` → ≥50% visible → ≥2s → `case_section_viewed` → `case_study_completed`
+**Flow:** `completion_section` → đạt điều kiện visible (mục 5) → liên tục ≥2s → `case_section_viewed` → `case_study_completed`
 
 | Rule | Dùng? |
 | :---- | :---: |
@@ -594,11 +637,12 @@ Không hardcode case config trong:
 | Allowed section IDs | 9 centralized values |
 | Allowed CTA actions | Centralized values |
 | Allowed CTA locations | Centralized values |
-| Section visibility threshold | `50%` |
+| Section visibility threshold | ≥50% section visible **hoặc** phần visible ≥50% chiều cao viewport (mục 5) |
 | Minimum dwell time | `2000ms` |
 | Session UTM storage | `sessionStorage` |
 | First-touch UTM | `mixpanel.people.set_once()` |
 | Section deduplication | In-memory `Set` \+ `sessionStorage` |
+| Page-level event deduplication | `portfolio_viewed`: 1 lần / session; `case_study_opened`: 1 lần / case / session; `high_intent_action`: không deduplicate (mục 2) |
 | Admin/preview exclusion | Kiểm tra trước khi init/track |
 | Analytics Service | Centralized module |
 
@@ -777,6 +821,11 @@ Public tracking
 | Chuyển giữa nhiều case | Giữ đúng current-session UTM |
 | Quay lại bằng session mới | Anonymous visitor persistence vẫn hoạt động |
 | Xem cùng `section_id` ở case khác | Vẫn track vì `case_id` khác |
+| Dừng ≥2 giây ở section cao hơn 2 lần viewport, phần visible chiếm ≥50% chiều cao viewport | Fire một `case_section_viewed` |
+| Refresh hoặc quay lại homepage trong cùng session | Không fire lại `portfolio_viewed` |
+| Mở lại cùng case trong cùng session (refresh, back/forward, từ homepage) | Không fire lại `case_study_opened`; event đầu tiên giữ `entry_source` và `display_position` ban đầu |
+| Mở một case khác trong cùng session | Fire `case_study_opened` cho case đó |
+| Click Download CV nhiều lần | Mỗi click fire một `high_intent_action` |
 
 Admin và preview exclusion
 
@@ -834,7 +883,7 @@ Admin và preview exclusion
 | Test | Expected |
 | ----- | ----- |
 | Admin reorder case | `display_position` cập nhật trong DB |
-| Mở case sau reorder | Event mới chứa position mới |
+| Mở case sau reorder (trong session mới, hoặc case chưa mở trong session) | Event mới chứa position mới |
 | Kiểm tra event cũ | Position cũ không thay đổi |
 | Admin đổi `completion_section` | Completion event dùng section mới |
 | Publish case mới | Không cần tạo page hoặc event mới |
