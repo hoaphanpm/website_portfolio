@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 
 import { AddSectionForm } from "./add-section-form";
 import { CaseFieldsForm } from "./case-fields-form";
+import { ImageList } from "./image-list";
+import { ImageUploadForm } from "./image-upload-form";
 import { SectionList } from "./section-list";
 
 export default async function CaseEditorPage({
@@ -19,7 +21,7 @@ export default async function CaseEditorPage({
   const { data: caseRow, error: caseError } = await supabase
     .from("cases")
     .select(
-      "id, case_id, case_name, headline, summary, tags, completion_section",
+      "id, case_id, case_name, headline, summary, tags, completion_section, hero_image_id",
     )
     .eq("id", id)
     .maybeSingle();
@@ -34,7 +36,14 @@ export default async function CaseEditorPage({
     .eq("case_id", id)
     .order("section_index", { ascending: true });
 
+  const { data: images, error: imagesError } = await supabase
+    .from("case_images")
+    .select("id, alt_text, mime_type, size_bytes, width, height")
+    .eq("case_id", id)
+    .order("created_at", { ascending: true });
+
   const sectionList = sections ?? [];
+  const imageList = images ?? [];
   const usedSectionIds = new Set(sectionList.map((s) => s.section_id));
   const availableSectionIds = SECTION_IDS.filter(
     (sectionId) => !usedSectionIds.has(sectionId),
@@ -53,6 +62,24 @@ export default async function CaseEditorPage({
         <h1 className="text-xl font-semibold">{caseRow.case_name}</h1>
         <div className="mt-4">
           <CaseFieldsForm caseRow={caseRow} sections={sectionList} />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-semibold">Images</h2>
+        {imagesError ? (
+          <p className="mt-2 text-sm text-destructive">
+            Could not load images.
+          </p>
+        ) : (
+          <ImageList
+            caseId={caseRow.id}
+            images={imageList}
+            heroImageId={caseRow.hero_image_id}
+          />
+        )}
+        <div className="mt-6">
+          <ImageUploadForm caseId={caseRow.id} />
         </div>
       </section>
 
