@@ -27,3 +27,15 @@ export const imageActionInitialState: ImageActionState = {
   error: null,
   success: false,
 };
+
+export type PublishState = {
+  error: string | null;
+  checklist: string[];
+  success: boolean;
+};
+
+export const publishInitialState: PublishState = {
+  error: null,
+  checklist: [],
+  success: false,
+};

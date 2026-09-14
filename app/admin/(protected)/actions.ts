@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -49,4 +50,32 @@ export async function createCase(
   }
 
   redirect(`/admin/cases/${data.id}`);
+}
+
+/**
+ * Persists a full case reorder via the existing reorder_cases() DB
+ * function, which requires every existing case id exactly once
+ * (docs/architecture.md §2) — the client always sends the complete list,
+ * not just the moved item. Called as a plain function from the case
+ * list's drag-and-drop handler, not via useActionState.
+ */
+export async function reorderCases(
+  orderedCaseIds: string[],
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+
+  if (!(await requireAdmin(supabase))) {
+    return { error: "Not authorized." };
+  }
+
+  const { error } = await supabase.rpc("reorder_cases", {
+    p_case_ids: orderedCaseIds,
+  });
+
+  if (error) {
+    return { error: "Could not save the new order. Please try again." };
+  }
+
+  revalidatePath("/admin");
+  return { error: null };
 }

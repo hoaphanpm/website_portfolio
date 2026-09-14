@@ -169,6 +169,24 @@ export async function clearHeroImage(
     return { error: "Not authorized.", success: false };
   }
 
+  // Milestone 5 approved decision #5: a published case requires a hero
+  // image (validate_case), so clearing it would break cases_guard_publish_
+  // integrity's re-check on this same UPDATE. Friendly pre-check; that
+  // trigger remains the authoritative backstop.
+  const { data: caseRow } = await supabase
+    .from("cases")
+    .select("status")
+    .eq("id", caseRowId)
+    .maybeSingle();
+
+  if (caseRow?.status === "published") {
+    return {
+      error:
+        "Cannot clear the hero image while this case is published. Set a different hero image, or unpublish the case first.",
+      success: false,
+    };
+  }
+
   const { error } = await supabase
     .from("cases")
     .update({ hero_image_id: null })

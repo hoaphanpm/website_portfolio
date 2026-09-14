@@ -59,7 +59,7 @@ export async function updateCaseFields(
 
   const { data: current, error: loadError } = await supabase
     .from("cases")
-    .select("case_id, first_published_at")
+    .select("case_id, first_published_at, status, hero_image_id")
     .eq("id", caseRowId)
     .maybeSingle();
 
@@ -108,6 +108,45 @@ export async function updateCaseFields(
     if (!sectionRow) {
       return {
         error: "Completion section must be one of this case's current sections.",
+        success: false,
+      };
+    }
+  }
+
+  // Approved decision (Milestone 5 #5): friendly pre-check so an edit that
+  // would break a published case's validity is rejected with the specific
+  // reason, instead of the generic error the cases_guard_publish_integrity
+  // trigger's raw exception would otherwise produce. The trigger itself is
+  // untouched and remains the authoritative backstop either way.
+  if (current.status === "published") {
+    const { data: failures, error: validateError } = await supabase.rpc(
+      "validate_case",
+      {
+        p_case: {
+          id: caseRowId,
+          case_id: caseId,
+          case_name: caseName,
+          headline: headline || null,
+          summary: summary || null,
+          hero_image_id: current.hero_image_id,
+          completion_section: completionSection,
+        },
+      },
+    );
+
+    if (validateError) {
+      return {
+        error: "Could not verify these changes. Please try again.",
+        success: false,
+      };
+    }
+
+    if (failures && failures.length > 0) {
+      const messages = (failures as { message: string }[]).map(
+        (f) => f.message,
+      );
+      return {
+        error: `This case is published, so: ${messages.join(" ")}`,
         success: false,
       };
     }
@@ -244,11 +283,14 @@ export async function updateSectionContent(
 }
 
 /**
- * Deletes a section (allowed unconditionally in draft — the DB's
- * published-integrity guard only restricts this once a case is published,
- * which is out of this milestone's reach). Clarification: if the deleted
- * section was the case's completion_section, clear that field so it never
- * points at a section that no longer exists.
+ * Deletes a section. Allowed unconditionally in draft. Once a case is
+ * published, removing its decision section or its completion_section is
+ * rejected with a friendly, specific reason (Milestone 5 approved decision
+ * #5) — mirroring exactly what the existing case_sections_guard_before_delete
+ * trigger already enforces, which remains the authoritative backstop.
+ * Otherwise, if the deleted section was the case's completion_section,
+ * that field is cleared so it never points at a section that no longer
+ * exists.
  */
 export async function deleteSection(
   _prevState: SectionFormState,
@@ -268,6 +310,33 @@ export async function deleteSection(
     return { error: "Not authorized.", success: false };
   }
 
+  const { data: caseRow, error: caseLoadError } = await supabase
+    .from("cases")
+    .select("status, completion_section")
+    .eq("id", caseRowId)
+    .maybeSingle();
+
+  if (caseLoadError || !caseRow) {
+    return { error: "Case not found.", success: false };
+  }
+
+  if (caseRow.status === "published") {
+    if (sectionId === "decision") {
+      return {
+        error:
+          "Cannot remove the decision section while this case is published. Unpublish it first.",
+        success: false,
+      };
+    }
+    if (sectionId === caseRow.completion_section) {
+      return {
+        error:
+          "Cannot remove this case's completion section while it's published. Choose a different completion section or unpublish the case first.",
+        success: false,
+      };
+    }
+  }
+
   const { error: deleteError } = await supabase
     .from("case_sections")
     .delete()
@@ -280,13 +349,7 @@ export async function deleteSection(
     };
   }
 
-  const { data: caseRow } = await supabase
-    .from("cases")
-    .select("completion_section")
-    .eq("id", caseRowId)
-    .maybeSingle();
-
-  if (caseRow?.completion_section === sectionId) {
+  if (caseRow.completion_section === sectionId) {
     await supabase
       .from("cases")
       .update({ completion_section: null })

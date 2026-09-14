@@ -8,6 +8,7 @@ import { AddSectionForm } from "./add-section-form";
 import { CaseFieldsForm } from "./case-fields-form";
 import { ImageList } from "./image-list";
 import { ImageUploadForm } from "./image-upload-form";
+import { PublishPanel } from "./publish-panel";
 import { SectionList } from "./section-list";
 
 export default async function CaseEditorPage({
@@ -21,7 +22,7 @@ export default async function CaseEditorPage({
   const { data: caseRow, error: caseError } = await supabase
     .from("cases")
     .select(
-      "id, case_id, case_name, headline, summary, tags, completion_section, hero_image_id",
+      "id, case_id, case_name, headline, summary, tags, completion_section, hero_image_id, status",
     )
     .eq("id", id)
     .maybeSingle();
@@ -57,6 +58,10 @@ export default async function CaseEditorPage({
       >
         ← Back to cases
       </Link>
+
+      <section>
+        <PublishPanel caseId={caseRow.id} status={caseRow.status} />
+      </section>
 
       <section>
         <h1 className="text-xl font-semibold">{caseRow.case_name}</h1>
