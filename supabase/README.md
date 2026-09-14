@@ -65,8 +65,17 @@ This repo intentionally hardcodes no email or user id anywhere. After you:
 1. create your real Supabase project (dashboard, or `supabase projects create`),
 2. push these migrations to it — `supabase link` then `supabase db push`
    (do **not** run `supabase/seed.sql` against it; that file is local-only),
-3. sign up as a user via Supabase Auth for that project (e.g. from Supabase
-   Studio's Authentication tab, or your future `/admin/login` page),
+3. **disable public signup for that project** — Dashboard → Authentication →
+   Sign In / Providers → Email → turn off "Allow new users to sign up" (the
+   equivalent of this repo's local `enable_signup = false` in
+   `supabase/config.toml`, added in Milestone 2 — the local CLI config and a
+   real project's Dashboard setting are independent, so this step doesn't
+   happen automatically from `supabase db push`),
+4. create your admin user via the Dashboard's **Authentication → Users →
+   Add user** action (this is a project-owner action, not the public signup
+   flow disabled in step 3, so it still works once signup is off) — or,
+   once `/admin/login` exists (Milestone 2), that page only ever *signs in*
+   an existing user, it never signs one up,
 
 run this once in the **SQL editor of that real project** (not locally),
 replacing the placeholder with the UUID of the user you just created
