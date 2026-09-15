@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { AnalyticsInit } from "@/components/analytics/analytics-init";
 import { CaseRenderer } from "@/components/case-study/case-renderer";
+import { computeTrackingAllowed } from "@/lib/analytics/gating";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { getCaseForPublicView } from "@/lib/cases/public-queries";
 import { createClient } from "@/lib/supabase/server";
@@ -97,5 +99,12 @@ export default async function CaseStudyPage({
     throw new Error("Failed to load case for public view");
   }
 
-  return <CaseRenderer caseDetail={result.case} />;
+  const trackingAllowed = await computeTrackingAllowed(isPreview);
+
+  return (
+    <>
+      <AnalyticsInit trackingAllowed={trackingAllowed} />
+      <CaseRenderer caseDetail={result.case} />
+    </>
+  );
 }
