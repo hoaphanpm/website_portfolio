@@ -1,15 +1,10 @@
+import Link from "next/link";
+
 import { Card, CardContent } from "@/components/ui/card";
 import type { PublicCaseSummary } from "@/lib/cases/public-queries";
 
 /**
- * Milestone 6: intentionally no clickable CTA — /work/[case_id] does not
- * exist yet, and an active link to a route that 404s is not acceptable.
- * "Explore case" is inert display text only (no href, not a button/link
- * element, no hover/focus/pointer affordance).
- *
- * Milestone 7 will change only the return statement: wrap the label below
- * in a <Link href={`/work/${caseItem.case_id}`}>. The props and layout
- * here don't need to change for that.
+ * Milestone 7 (correction #10): activated now that /work/[case_id] exists.
  */
 export function CaseCard({ caseItem }: { caseItem: PublicCaseSummary }) {
   return (
@@ -33,9 +28,12 @@ export function CaseCard({ caseItem }: { caseItem: PublicCaseSummary }) {
             ))}
           </div>
         ) : null}
-        <span className="mt-4 inline-block text-sm font-medium text-muted-foreground">
+        <Link
+          href={`/work/${caseItem.case_id}`}
+          className="mt-4 inline-block text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           Explore case →
-        </span>
+        </Link>
       </CardContent>
     </Card>
   );

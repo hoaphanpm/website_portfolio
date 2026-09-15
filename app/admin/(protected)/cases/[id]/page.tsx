@@ -8,6 +8,7 @@ import { AddSectionForm } from "./add-section-form";
 import { CaseFieldsForm } from "./case-fields-form";
 import { ImageList } from "./image-list";
 import { ImageUploadForm } from "./image-upload-form";
+import { PreviewLink } from "./preview-link";
 import { PublishPanel } from "./publish-panel";
 import { SectionList } from "./section-list";
 
@@ -59,8 +60,9 @@ export default async function CaseEditorPage({
         ← Back to cases
       </Link>
 
-      <section>
+      <section className="space-y-3">
         <PublishPanel caseId={caseRow.id} status={caseRow.status} />
+        <PreviewLink caseSlug={caseRow.case_id} status={caseRow.status} />
       </section>
 
       <section>
