@@ -1,8 +1,13 @@
+import { HighIntentLink } from "@/components/analytics/high-intent-link";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
-export function ContactSection() {
+export function ContactSection({
+  trackingAllowed,
+}: {
+  trackingAllowed: boolean;
+}) {
   const { heading, subtext, email, linkedinUrl } = siteConfig.contact;
 
   return (
@@ -12,25 +17,37 @@ export function ContactSection() {
         <p className="mt-2 text-muted-foreground">{subtext}</p>
         <div className="mt-6 flex flex-wrap gap-3">
           {email ? (
-            <a href={`mailto:${email}`} className={cn(buttonVariants({}))}>
+            <HighIntentLink
+              href={`mailto:${email}`}
+              action="email_click"
+              location="homepage_contact"
+              trackingAllowed={trackingAllowed}
+              className={cn(buttonVariants({}))}
+            >
               Email me
-            </a>
+            </HighIntentLink>
           ) : null}
           {linkedinUrl ? (
-            <a
+            <HighIntentLink
               href={linkedinUrl}
+              action="linkedin_click"
+              location="homepage_contact"
+              trackingAllowed={trackingAllowed}
               className={cn(buttonVariants({ variant: "outline" }))}
             >
               LinkedIn
-            </a>
+            </HighIntentLink>
           ) : null}
           {siteConfig.cvUrl ? (
-            <a
+            <HighIntentLink
               href={siteConfig.cvUrl}
+              action="download_cv"
+              location="homepage_contact"
+              trackingAllowed={trackingAllowed}
               className={cn(buttonVariants({ variant: "outline" }))}
             >
               Download CV
-            </a>
+            </HighIntentLink>
           ) : null}
         </div>
       </div>

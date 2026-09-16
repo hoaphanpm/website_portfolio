@@ -1,8 +1,9 @@
+import { HighIntentLink } from "@/components/analytics/high-intent-link";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
-export function Hero() {
+export function Hero({ trackingAllowed }: { trackingAllowed: boolean }) {
   return (
     <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
       <p className="text-sm font-medium text-muted-foreground">
@@ -19,12 +20,15 @@ export function Hero() {
           View case studies ↓
         </a>
         {siteConfig.cvUrl ? (
-          <a
+          <HighIntentLink
             href={siteConfig.cvUrl}
+            action="download_cv"
+            location="homepage_hero"
+            trackingAllowed={trackingAllowed}
             className={cn(buttonVariants({ variant: "outline" }))}
           >
             Download CV
-          </a>
+          </HighIntentLink>
         ) : null}
       </div>
     </section>

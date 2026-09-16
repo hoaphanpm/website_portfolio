@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AnalyticsInit } from "@/components/analytics/analytics-init";
+import { PortfolioViewedTracker } from "@/components/analytics/portfolio-viewed-tracker";
 import { ContactSection } from "@/components/home/contact-section";
 import { Hero } from "@/components/home/hero";
 import { HowIThink } from "@/components/home/how-i-think";
@@ -27,12 +28,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <>
       <AnalyticsInit trackingAllowed={trackingAllowed} />
-      <Hero />
+      <PortfolioViewedTracker trackingAllowed={trackingAllowed} />
+      <Hero trackingAllowed={trackingAllowed} />
       <SelectedWork />
       <HowIThink />
       <Journey />
       <Writing />
-      <ContactSection />
+      <ContactSection trackingAllowed={trackingAllowed} />
     </>
   );
 }

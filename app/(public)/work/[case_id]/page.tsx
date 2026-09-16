@@ -104,7 +104,7 @@ export default async function CaseStudyPage({
   return (
     <>
       <AnalyticsInit trackingAllowed={trackingAllowed} />
-      <CaseRenderer caseDetail={result.case} />
+      <CaseRenderer caseDetail={result.case} trackingAllowed={trackingAllowed} />
     </>
   );
 }

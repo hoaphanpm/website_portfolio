@@ -55,3 +55,13 @@ export const HIGH_INTENT_LOCATIONS = [
 ] as const;
 
 export type HighIntentLocation = (typeof HIGH_INTENT_LOCATIONS)[number];
+
+/**
+ * portfolio-tracking-spec.md §5 / §13 "Global Analytics Config": the section
+ * visibility rule's minimum dwell time and the 50% threshold used for both
+ * of its two conditions. Centralized here rather than hardcoded inside
+ * lib/analytics/use-section-view.ts, matching the spec's "centralized
+ * config, không hardcode rải rác" instruction.
+ */
+export const SECTION_VIEW_MIN_DWELL_MS = 2000;
+export const SECTION_VIEW_VISIBILITY_RATIO = 0.5;
