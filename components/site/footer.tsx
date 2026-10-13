@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { HighIntentLink } from "@/components/analytics/high-intent-link";
+import { LinkedInIcon, MailIcon, SubstackIcon } from "@/components/icons";
 import { siteConfig } from "@/lib/site-config";
 
 /**
@@ -22,7 +23,7 @@ export function Footer({
 }: {
   trackingAllowedBase: boolean;
 }) {
-  const { email, linkedinUrl } = siteConfig.contact;
+  const { email, linkedinUrl, substackUrl } = siteConfig.social;
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -38,10 +39,11 @@ export function Footer({
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
           <p className="font-medium text-foreground">{siteConfig.name}</p>
+          <p className="text-foreground/80">{siteConfig.title}</p>
           <p>{siteConfig.footer.tagline}</p>
         </div>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           {linkedinUrl ? (
             <HighIntentLink
               href={linkedinUrl}
@@ -49,11 +51,23 @@ export function Footer({
               location={location}
               caseId={caseId}
               trackingAllowed={trackingAllowed}
-              className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
+              <LinkedInIcon className="h-4 w-4" />
               LinkedIn
             </HighIntentLink>
           ) : null}
+          <a
+            href={substackUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <SubstackIcon className="h-4 w-4" />
+            Substack
+          </a>
           {email ? (
             <HighIntentLink
               href={`mailto:${email}`}
@@ -61,8 +75,9 @@ export function Footer({
               location={location}
               caseId={caseId}
               trackingAllowed={trackingAllowed}
-              className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
+              <MailIcon className="h-4 w-4" />
               Email
             </HighIntentLink>
           ) : null}

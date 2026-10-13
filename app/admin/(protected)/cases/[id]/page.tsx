@@ -23,7 +23,7 @@ export default async function CaseEditorPage({
   const { data: caseRow, error: caseError } = await supabase
     .from("cases")
     .select(
-      "id, case_id, case_name, headline, summary, tags, completion_section, hero_image_id, status",
+      "id, case_id, case_name, headline, summary, tags, completion_section, hero_image_id, status, artifact_url, artifact_label",
     )
     .eq("id", id)
     .maybeSingle();
@@ -38,14 +38,28 @@ export default async function CaseEditorPage({
     .eq("case_id", id)
     .order("section_index", { ascending: true });
 
+  // Case-level library (hero image candidates) — section-scoped images now
+  // live in the same table but are managed per-section below, not mixed
+  // into this list.
   const { data: images, error: imagesError } = await supabase
     .from("case_images")
     .select("id, alt_text, mime_type, size_bytes, width, height")
     .eq("case_id", id)
+    .is("section_id", null)
     .order("created_at", { ascending: true });
+
+  const { data: sectionImages, error: sectionImagesError } = await supabase
+    .from("case_images")
+    .select(
+      "id, section_id, alt_text, caption, is_decorative, display_order, mime_type, size_bytes, width, height",
+    )
+    .eq("case_id", id)
+    .not("section_id", "is", null)
+    .order("display_order", { ascending: true });
 
   const sectionList = sections ?? [];
   const imageList = images ?? [];
+  const sectionImageList = sectionImages ?? [];
   const usedSectionIds = new Set(sectionList.map((s) => s.section_id));
   const availableSectionIds = SECTION_IDS.filter(
     (sectionId) => !usedSectionIds.has(sectionId),
@@ -92,12 +106,16 @@ export default async function CaseEditorPage({
 
       <section>
         <h2 className="text-lg font-semibold">Sections</h2>
-        {sectionsError ? (
+        {sectionsError || sectionImagesError ? (
           <p className="mt-2 text-sm text-destructive">
             Could not load sections.
           </p>
         ) : (
-          <SectionList caseId={caseRow.id} sections={sectionList} />
+          <SectionList
+            caseId={caseRow.id}
+            sections={sectionList}
+            sectionImages={sectionImageList}
+          />
         )}
         {availableSectionIds.length > 0 ? (
           <div className="mt-6">

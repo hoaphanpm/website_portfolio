@@ -3,6 +3,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-body-foreground: var(--body-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
@@ -25,6 +26,11 @@
   --radius: 0.5rem;
   --background: #ffffff;
   --foreground: #0a0a0a;
+  /* Same value as --muted-foreground below (light mode is unchanged by the
+     Substack-inspired dark redesign — see globals.css's dark block for the
+     actual palette update). Kept as its own token so components reference
+     one semantic "body copy color" name regardless of theme. */
+  --body-foreground: #737373;
   --card: #ffffff;
   --card-foreground: #0a0a0a;
   --primary: #171717;
@@ -40,27 +46,53 @@
   --ring: #a3a3a3;
 }
 
+/* Case-study visual redesign: Substack-dark-mode-inspired reading palette
+   (tone/contrast only — no Substack branding, typography, or literal
+   colors copied). Public pages only in effect (no toggle; this is the
+   site's existing system-driven prefers-color-scheme mechanism, unchanged
+   — a light-OS visitor still gets the :root palette above). Every value
+   here is an existing shared token (--background/--card/--border/etc.),
+   so every component that already uses bg-background/bg-card/border-border/
+   text-muted-foreground picks this up automatically — nothing scattered
+   into individual components. --body-foreground is the one new token:
+   standard section body copy needed to be visibly brighter than muted
+   metadata (section numbers, eyebrow, tags, captions), which this palette
+   previously conflated by reusing --muted-foreground for both. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #fafafa;
-    --card: #171717;
-    --card-foreground: #fafafa;
-    --primary: #fafafa;
-    --primary-foreground: #171717;
-    --secondary: #262626;
-    --secondary-foreground: #fafafa;
-    --muted: #262626;
-    --muted-foreground: #a3a3a3;
+    --background: #0d0e0e;
+    --foreground: #f4f4f2;
+    --body-foreground: #dcdcd8;
+    --card: #151717;
+    --card-foreground: #f4f4f2;
+    --primary: #f4f4f2;
+    --primary-foreground: #141616;
+    --secondary: #1c1f1f;
+    --secondary-foreground: #f4f4f2;
+    --muted: #1c1f1f;
+    --muted-foreground: #a6a6a1;
     --destructive: #f87171;
     --destructive-foreground: #0a0a0a;
-    --border: #262626;
-    --input: #262626;
-    --ring: #525252;
+    --border: #2c2f2f;
+    --input: #2c2f2f;
+    --ring: #525858;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Case-study redesign milestone: anchor-link scrolling (section-nav.tsx,
+   bottom nav) is smooth by default and respects prefers-reduced-motion —
+   plain CSS, so no JS scroll handler is needed for this. */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

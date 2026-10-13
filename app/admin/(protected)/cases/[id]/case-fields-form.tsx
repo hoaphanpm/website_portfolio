@@ -20,6 +20,8 @@ type CaseRow = {
   summary: string | null;
   tags: string[];
   completion_section: string | null;
+  artifact_url: string | null;
+  artifact_label: string | null;
 };
 
 type SectionRow = { section_id: string };
@@ -94,6 +96,35 @@ export function CaseFieldsForm({
           placeholder="Lending, JTBD, Product Discovery"
         />
         <p className="text-xs text-muted-foreground">Comma-separated.</p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="artifact_url">Artifact link (optional)</Label>
+        <Input
+          id="artifact_url"
+          name="artifact_url"
+          type="url"
+          defaultValue={caseRow.artifact_url ?? ""}
+          placeholder="https://..."
+        />
+        <p className="text-xs text-muted-foreground">
+          Figma, Miro, a prototype, deck, or research doc. Must be a full
+          https:// or http:// URL.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="artifact_label">Artifact link label (optional)</Label>
+        <Input
+          id="artifact_label"
+          name="artifact_label"
+          defaultValue={caseRow.artifact_label ?? ""}
+          placeholder="View artifact ↗"
+        />
+        <p className="text-xs text-muted-foreground">
+          Shown as the button/link text. Leave blank to use the default
+          &ldquo;View artifact ↗&rdquo;.
+        </p>
       </div>
 
       <div className="space-y-2">

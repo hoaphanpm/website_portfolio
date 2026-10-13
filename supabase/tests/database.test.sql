@@ -14,7 +14,7 @@
 --   draft case:      00000000-0000-0000-0000-0000000000a2 ('sample-draft-case')
 
 begin;
-select plan(25);
+select plan(44);
 
 -- ---------------------------------------------------------------------------
 -- 1. RLS: anonymous visitor
@@ -214,6 +214,161 @@ select lives_ok(
 select throws_ok(
   $$ select reorder_cases(array[gen_random_uuid()]) $$,
   '22023'
+);
+
+reset role;
+
+-- ---------------------------------------------------------------------------
+-- 10. Case-study redesign milestone: optional artifact link
+-- ---------------------------------------------------------------------------
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000001","role":"authenticated"}';
+
+select throws_ok(
+  $$ update cases set artifact_url = 'javascript:alert(1)' where id = '00000000-0000-0000-0000-0000000000a1' $$,
+  '23514'
+);
+
+select lives_ok(
+  $$ update cases set artifact_url = 'https://example.com/deck', artifact_label = 'View deck'
+     where id = '00000000-0000-0000-0000-0000000000a1' $$,
+  'admin can set a valid https artifact_url and label'
+);
+
+select is(
+  (select artifact_url from cases where id = '00000000-0000-0000-0000-0000000000a1'),
+  'https://example.com/deck',
+  'artifact_url persisted'
+);
+
+select is(
+  (select artifact_url from cases where id = '00000000-0000-0000-0000-0000000000a2'),
+  null,
+  'an existing case never touched by this milestone still has artifact_url = null'
+);
+
+-- ---------------------------------------------------------------------------
+-- 11. Case-study redesign milestone: multiple ordered images per section
+-- ---------------------------------------------------------------------------
+
+select lives_ok(
+  $$ insert into case_images (id, case_id, section_id, storage_path, alt_text, mime_type, display_order)
+     values (
+       '00000000-0000-0000-0000-0000000000c1',
+       '00000000-0000-0000-0000-0000000000a1',
+       (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a1' and section_id = 'overview'),
+       '00000000-0000-0000-0000-0000000000a1/c1.jpg', 'First section image', 'image/jpeg', 1
+     ) $$,
+  'admin can insert a section image for the overview section'
+);
+
+select lives_ok(
+  $$ insert into case_images (id, case_id, section_id, storage_path, alt_text, mime_type, display_order)
+     values (
+       '00000000-0000-0000-0000-0000000000c2',
+       '00000000-0000-0000-0000-0000000000a1',
+       (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a1' and section_id = 'overview'),
+       '00000000-0000-0000-0000-0000000000a1/c2.jpg', 'Second section image', 'image/jpeg', 2
+     ) $$,
+  'admin can insert a second, ordered section image for the same section'
+);
+
+-- case_images_section_case_fk: a section_id from a DIFFERENT case than
+-- case_id must be rejected (foreign_key_violation).
+select throws_ok(
+  $$ insert into case_images (id, case_id, section_id, storage_path, mime_type)
+     values (
+       '00000000-0000-0000-0000-0000000000c3',
+       '00000000-0000-0000-0000-0000000000a1',
+       (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a2' and section_id = 'overview'),
+       '00000000-0000-0000-0000-0000000000a1/c3.jpg', 'image/jpeg'
+     ) $$,
+  '23503'
+);
+
+select lives_ok(
+  $$ select reorder_section_images(
+       (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a1' and section_id = 'overview'),
+       array['00000000-0000-0000-0000-0000000000c2'::uuid, '00000000-0000-0000-0000-0000000000c1'::uuid]
+     ) $$,
+  'admin can reorder this section''s images'
+);
+
+select is(
+  (select display_order from case_images where id = '00000000-0000-0000-0000-0000000000c2'),
+  1,
+  'c2 is display_order 1 after reorder'
+);
+
+select is(
+  (select display_order from case_images where id = '00000000-0000-0000-0000-0000000000c1'),
+  2,
+  'c1 is display_order 2 after reorder'
+);
+
+-- Mirrors reorder_cases: must contain every image in the section exactly
+-- once, not a subset.
+select throws_ok(
+  $$ select reorder_section_images(
+       (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a1' and section_id = 'overview'),
+       array['00000000-0000-0000-0000-0000000000c1'::uuid]
+     ) $$,
+  '22023'
+);
+
+-- validate_case: a non-decorative image with empty alt_text blocks
+-- (re-)publish; a decorative image with null alt_text does not.
+select lives_ok(
+  $$ update case_images set alt_text = '' where id = '00000000-0000-0000-0000-0000000000c1' $$,
+  'can clear alt_text on a section image'
+);
+
+select throws_ok(
+  $$ update cases set headline = headline where id = '00000000-0000-0000-0000-0000000000a1' $$,
+  '23514'
+);
+
+select lives_ok(
+  $$ update case_images set alt_text = 'First section image (restored)'
+     where id = '00000000-0000-0000-0000-0000000000c1' $$,
+  'restoring alt_text fixes the section image'
+);
+
+select lives_ok(
+  $$ update cases set headline = headline where id = '00000000-0000-0000-0000-0000000000a1' $$,
+  'the case is publishable again once every non-decorative image has alt_text'
+);
+
+select lives_ok(
+  $$ insert into case_images (id, case_id, section_id, storage_path, alt_text, mime_type, is_decorative, display_order)
+     values (
+       '00000000-0000-0000-0000-0000000000c4',
+       '00000000-0000-0000-0000-0000000000a1',
+       (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a1' and section_id = 'overview'),
+       '00000000-0000-0000-0000-0000000000a1/c4.jpg', null, 'image/jpeg', true, 3
+     ) $$,
+  'a decorative image can be inserted with null alt_text'
+);
+
+select lives_ok(
+  $$ update cases set headline = headline where id = '00000000-0000-0000-0000-0000000000a1' $$,
+  'a decorative image with null alt_text does not block publish validity'
+);
+
+-- Backward compatibility: the existing hero image (case-level, no
+-- section_id) is completely unaffected by any of the above.
+select is(
+  (select section_id from case_images where id = '00000000-0000-0000-0000-0000000000b1'),
+  null,
+  'the pre-existing hero image still has section_id = null (unaffected)'
+);
+
+select is(
+  (select count(*)::int from case_images
+     where section_id = (select id from case_sections where case_id = '00000000-0000-0000-0000-0000000000a1' and section_id = 'reflection')),
+  0,
+  'a section with no images (reflection) still has zero case_images rows — imageless sections keep working'
 );
 
 reset role;

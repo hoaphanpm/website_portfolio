@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import { AnalyticsInit } from "@/components/analytics/analytics-init";
 import { PortfolioViewedTracker } from "@/components/analytics/portfolio-viewed-tracker";
 import { ContactSection } from "@/components/home/contact-section";
@@ -9,12 +7,10 @@ import { Journey } from "@/components/home/journey";
 import { SelectedWork } from "@/components/home/selected-work";
 import { Writing } from "@/components/home/writing";
 import { computeTrackingAllowed } from "@/lib/analytics/gating";
-import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
-  title: siteConfig.name,
-  description: siteConfig.hero.subtext,
-};
+// No page-level `metadata` export here (Milestone 11 Phase B) — the
+// homepage now inherits the real title/description/Open Graph/Twitter
+// metadata directly from app/layout.tsx, avoiding two sources of truth.
 
 type HomePageProps = {
   searchParams: Promise<{ preview?: string }>;

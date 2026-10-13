@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isSectionId } from "@/lib/cases/constants";
 import { isValidSlug } from "@/lib/cases/slug";
-import { parseTags } from "@/lib/cases/validation";
+import { isValidArtifactUrl, parseTags } from "@/lib/cases/validation";
 import { createClient } from "@/lib/supabase/server";
 
 import type { CaseFieldsState, SectionFormState } from "./types";
@@ -27,6 +27,8 @@ export async function updateCaseFields(
   const summary = String(formData.get("summary") ?? "").trim();
   const tagsInput = String(formData.get("tags") ?? "");
   const completionSectionRaw = String(formData.get("completion_section") ?? "");
+  const artifactUrlInput = String(formData.get("artifact_url") ?? "").trim();
+  const artifactLabelInput = String(formData.get("artifact_label") ?? "").trim();
 
   if (!caseRowId) {
     return { error: "Missing case reference.", success: false };
@@ -49,6 +51,18 @@ export async function updateCaseFields(
     completionSectionRaw === "" ? null : completionSectionRaw;
   if (completionSection !== null && !isSectionId(completionSection)) {
     return { error: "Invalid completion section.", success: false };
+  }
+
+  // Case-study redesign milestone: optional artifact link. Both fields
+  // optional; only validated when a URL is actually supplied. Absolute
+  // http(s) only — rejects javascript:/data:/file:/relative paths.
+  const artifactUrl = artifactUrlInput === "" ? null : artifactUrlInput;
+  const artifactLabel = artifactLabelInput === "" ? null : artifactLabelInput;
+  if (artifactUrl !== null && !isValidArtifactUrl(artifactUrl)) {
+    return {
+      error: "Artifact link must be a full https:// or http:// URL.",
+      success: false,
+    };
   }
 
   const supabase = await createClient();
@@ -161,6 +175,8 @@ export async function updateCaseFields(
       summary: summary || null,
       tags: parseTags(tagsInput),
       completion_section: completionSection,
+      artifact_url: artifactUrl,
+      artifact_label: artifactLabel,
     })
     .eq("id", caseRowId);
 
@@ -337,6 +353,16 @@ export async function deleteSection(
     }
   }
 
+  // Case-study redesign milestone: clean up this section's own images
+  // (Storage files) before the section row goes away. case_images.section_id
+  // has ON DELETE CASCADE as a DB-level safety net, but that alone would
+  // silently drop the metadata rows without freeing their Storage objects —
+  // same best-effort cleanup as deleteImage/deleteSectionImage.
+  const { data: sectionImageRows } = await supabase
+    .from("case_images")
+    .select("storage_path")
+    .eq("section_id", sectionRowId);
+
   const { error: deleteError } = await supabase
     .from("case_sections")
     .delete()
@@ -347,6 +373,12 @@ export async function deleteSection(
       error: "Could not delete the section. Please try again.",
       success: false,
     };
+  }
+
+  if (sectionImageRows && sectionImageRows.length > 0) {
+    await supabase.storage
+      .from("case-images")
+      .remove(sectionImageRows.map((row) => row.storage_path));
   }
 
   if (caseRow.completion_section === sectionId) {

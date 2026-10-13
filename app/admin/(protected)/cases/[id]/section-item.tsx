@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { SECTION_LABELS, type SectionId } from "@/lib/cases/constants";
 
 import { deleteSection, updateSectionContent } from "./actions";
+import type { SectionImageRow } from "./section-image-card";
+import { SectionImageManager } from "./section-image-manager";
 import { sectionFormInitialState } from "./types";
 
 type SectionRow = {
@@ -22,9 +24,11 @@ type SectionRow = {
 export function SectionItem({
   caseId,
   section,
+  images,
 }: {
   caseId: string;
   section: SectionRow;
+  images: SectionImageRow[];
 }) {
   const [updateState, updateAction, updatePending] = useActionState(
     updateSectionContent,
@@ -103,6 +107,15 @@ export function SectionItem({
               {deletePending ? "Deleting…" : "Delete section"}
             </Button>
           </form>
+
+          <div className="space-y-2 border-t border-border pt-4">
+            <p className="text-sm font-medium">Images</p>
+            <SectionImageManager
+              caseId={caseId}
+              sectionRowId={section.id}
+              images={images}
+            />
+          </div>
         </CardContent>
       </Card>
     </li>
