@@ -30,7 +30,7 @@ export function Footer({
   const isPreview = searchParams.get("preview") === "true";
   const trackingAllowed = trackingAllowedBase && !isPreview;
 
-  const workMatch = pathname?.match(/^\/work\/([^/]+)/);
+  const workMatch = pathname?.match(/^\/(?:work|case-studies)\/([^/]+)/);
   const location = workMatch ? "case_footer" : "homepage_footer";
   const caseId = workMatch ? workMatch[1] : undefined;
 
