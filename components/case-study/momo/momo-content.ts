@@ -1,6 +1,6 @@
 /**
  * Final website copy for the MoMo v2 page, from
- * reference/MoMo_Case_Study_Final_Website_Content.md (approved content
+ * reference/momo/MoMo_Case_Study_Final_Website_Content.md (approved content
  * source). Nothing here is added beyond that file.
  *
  * Evidence convention (kept visible on the page where it matters):
