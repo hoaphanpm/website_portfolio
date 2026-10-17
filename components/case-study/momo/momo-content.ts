@@ -13,9 +13,10 @@ export const momoContent = {
   status: "Proposed strategy and pilot — not tested",
   hero: {
     eyebrow: "Product Strategy · Activation · Experimentation",
-    headline: "Turning Payday Cash-Out Into a First Savings Habit",
+    headline:
+      "Finding the Right Growth Segment to Lift Financial-Service Adoption",
     summary:
-      "I compared three growth segments and designed a nine-week pilot to turn MoMo's payday cash-out behavior into a first savings habit.",
+      "I used segment, funnel, and unit-economics data to identify the most testable growth opportunity, then designed a nine-week pilot to validate it.",
     chips: [
       "Product Strategy",
       "Growth Experimentation",
@@ -44,12 +45,12 @@ export const momoContent = {
         "High payment activity wasn't translating into financial-service adoption. The challenge was to find a barrier that could be addressed and measured within a short pilot.",
       cards: [
         {
-          title: "High usage, low FS adoption",
+          title: "High payment activity, low FS adoption",
           body: "Frequent wallet transactions did not automatically lead to deeper financial engagement.",
         },
         {
-          title: "Growth beyond payments",
-          body: "MoMo needed to convert existing payment relationships into meaningful financial-service usage.",
+          title: "No clear path to first financial service",
+          body: "MoMo had strong payment engagement, but users lacked a clear, low-friction next step into financial services.",
         },
         {
           title: "Different barriers, limited time",
@@ -93,9 +94,9 @@ export const momoContent = {
       // label inconsistency) lives in the disclosure below the table.
       dataNoteShort:
         "Case inputs and scenario-based calculations, not actual pilot results.",
-      dataNoteTitle: "Methodology and open assumptions",
+      dataNoteTitle: "Data & calculation note",
       dataNote:
-        "User counts, penetration, funnel rates, LTV and CAC are case inputs. Gross profit and Year-1 profit pools are derived under the brief's 10% activation scenario, not actual results. The brief's “monthly LTV” label conflicts with its instruction to use the values as 12-month LTV in Year-1 calculations; confirm this before an investment decision.",
+        "User size, penetration, funnel, LTV and CAC come from the case brief. Profit pools are scenario estimates using 10% activation; because the brief's LTV definition is inconsistent, I treat it as an assumption to validate—not an actual result.",
     },
     insight: {
       blurb:
@@ -121,7 +122,7 @@ export const momoContent = {
         {
           title: "Interpretation",
           bullets: [
-            "Receiving salary does not automatically create a saving habit.",
+            "Receiving salary through MoMo does not mean users keep surplus there or build a routine of saving or investing it.",
             "Payday provides a relevant, recurring moment.",
             "The first action should feel small, clear, and reversible.",
           ],
@@ -162,6 +163,16 @@ export const momoContent = {
       selected: {
         title: "Selected growth segment",
         body: "Unbanked workers aged 25–45 receiving a fixed monthly salary through MoMo.",
+      },
+      cohort: {
+        title: "Proposed early-adopter cohort",
+        bullets: [
+          "Fixed monthly salary paid through MoMo",
+          "Salary ≥5M VND/month",
+          "Withdraws ~70–80% soon after payday",
+          "Keeps ~20–30% in MoMo after living expenses",
+        ],
+        note: "Proposed targeting hypothesis — validate with transaction data before launch.",
       },
       // `why` and `filter` are retained verbatim but not rendered
       // (Step 8.2 simplification: the matrix already carries the reasoning).
@@ -299,8 +310,8 @@ export const momoContent = {
           src: "/images/case-studies/momo/gtm/gtm-creative.png",
           width: 1122,
           height: 1402,
-          caption: "GTM creative — proposed campaign communication asset",
-          alt: "Proposed campaign creative: a poster titled One salary, one small decision, a new way to keep money, showing three app screens for setting aside, confirming and completing a saving in Túi Thần Tài.",
+          caption: "GTM standee — proposed workplace campaign asset",
+          alt: "GTM standee — proposed workplace campaign asset. Poster titled One salary, one small decision, a new way to keep money, showing three app screens for setting aside, confirming and completing a saving in Túi Thần Tài.",
         },
       },
       // `constraints` is shown as one inline note. `levers` is retained
@@ -317,58 +328,82 @@ export const momoContent = {
     },
     measure: {
       blurb:
-        "This pilot should answer three questions: Did we create real uplift, is the impact meaningful, and does the behavior continue after first activation?",
+        "This pilot tests whether the intervention creates incremental financial-service adoption, retains meaningful balance, and avoids short-lived trial behavior.",
       statusLabel: "Proposed pilot · Not yet tested · No actual results",
-      // Visible copy for Section 08 (Step 8.3 rewrite).
-      cards: {
-        experiment: {
-          title: "Experiment",
-          bullets: [
-            "Eligible Unbanked salary users",
-            "Treatment vs. control",
-            "Nine-week pilot",
+      proposedLabel: "Proposed target",
+      metrics: [
+        {
+          kind: "Business metric",
+          tone: "pink",
+          name: "Total D30 Balance Retained in Túi Thần Tài",
+          support: "How much deposited money remains in Túi Thần Tài after 30 days.",
+          target: "≥30%",
+          qualifier: "of first-deposit value retained at D30",
+          note: null,
+        },
+        {
+          kind: "Primary metric",
+          tone: "pink",
+          name: "Incremental FS Activation Rate",
+          support: null,
+          target: "Treatment ≥12% vs. ~8% control",
+          qualifier: "≥+4 percentage-point lift",
+          note: "Assumes control remains near the case baseline.",
+        },
+        {
+          kind: "Counter metric",
+          tone: "warn",
+          name: "Full Withdrawal Within 48h",
+          support: null,
+          target: "≤25%",
+          qualifier: "of activated users",
+          note: "Full withdrawal followed by no redeposit within 7 days is a pivot signal.",
+        },
+      ],
+      pivotSignals: {
+        title: "Stop / Pivot Signals",
+        columns: ["Signal", "What it means", "Action"],
+        rows: [
+          [
+            "No meaningful activation uplift vs. control",
+            "The nudge is not creating new FS behavior.",
+            "Change the trigger moment or entry product.",
           ],
-        },
-        priority: {
-          title: "Priority metrics",
-          items: [
-            {
-              title: "Incremental FS activation rate",
-              body: "Measures whether the pilot creates uplift vs. control.",
-            },
-            {
-              title: "Incremental new FS users",
-              body: "Shows whether the uplift is meaningful in absolute user volume.",
-            },
-            {
-              title: "30-day retention rate",
-              body: "Checks whether first activation turns into continued behavior.",
-            },
+          [
+            "High full withdrawal within 48h + no redeposit within 7 days",
+            "Users are trying the product, not adopting it.",
+            "Adjust the suggested amount, message, or UX.",
           ],
-        },
-        rule: {
-          title: "Scale / pivot rule",
-          scaleIf: {
-            label: "Scale if:",
-            bullets: [
-              "activation uplift is meaningful,",
-              "new FS users are material,",
-              "30-day retention improves,",
-              "and guardrails remain healthy.",
-            ],
-          },
-          pivotIf: {
-            label: "Pivot / stop if:",
-            bullets: [
-              "there is no meaningful uplift vs. control,",
-              "users fully withdraw within 48 hours and do not return,",
-              "30-day retention is not better than control,",
-              "or results work only at one employer partner.",
-            ],
-          },
-        },
+          [
+            "D30 retention is not better than control",
+            "The behavior does not continue.",
+            "Do not scale; revisit product–segment fit.",
+          ],
+          [
+            "Results work only at one employer",
+            "The model may depend on a specific partner or user profile.",
+            "Review partner selection and early-adopter criteria.",
+          ],
+        ],
       },
-      note: "Fast full withdrawal is a warning sign of trial without habit formation.",
+      scalePath: {
+        title: "If the pilot works",
+        note: "Strategic direction, not a committed roadmap.",
+        steps: [
+          {
+            title: "Validate",
+            body: "Prove incremental FS activation and retained saving behavior.",
+          },
+          {
+            title: "Scale",
+            body: "Expand through salary-paying employers and qualified salary cohorts.",
+          },
+          {
+            title: "Expand",
+            body: "Use observed saving behavior and eligibility data to test adjacent financial services.",
+          },
+        ],
+      },
       // Everything below (`design`, `outcome`, `scale`, `indicators`,
       // `economicsNote`) is the earlier full measurement definition,
       // retained verbatim for future use but NOT rendered — do not delete.

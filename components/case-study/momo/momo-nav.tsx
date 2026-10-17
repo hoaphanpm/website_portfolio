@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import { SECTION_IDS, SECTION_LABELS } from "@/lib/cases/constants";
+import { SECTION_IDS } from "@/lib/cases/constants";
 import { cn } from "@/lib/utils";
+
+import { MOMO_SECTION_LABELS } from "./momo-config";
 
 /**
  * Sticky section navigation for the MoMo v2 page: a vertical rail at `lg`+
@@ -41,7 +43,7 @@ export function MomoNav() {
   const items = SECTION_IDS.map((id, i) => ({
     id,
     number: String(i + 1).padStart(2, "0"),
-    label: SECTION_LABELS[id],
+    label: MOMO_SECTION_LABELS[id],
     active: id === activeId,
   }));
 

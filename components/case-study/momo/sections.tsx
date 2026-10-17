@@ -273,6 +273,22 @@ export function DecisionModule() {
         <p className="mt-2 text-base text-white/80">{d.selected.body}</p>
       </Card>
 
+      <div className="rounded-xl border border-dashed border-[#e6007e]/45 bg-[#e6007e]/[0.05] p-4 sm:p-5">
+        <h3 className="text-sm font-semibold text-[#ebe7ef]">{d.cohort.title}</h3>
+        <ul className="mt-3 grid gap-x-6 gap-y-2 text-sm text-white/72 sm:grid-cols-2">
+          {d.cohort.bullets.map((b) => (
+            <li key={b} className="flex gap-2">
+              <span
+                aria-hidden="true"
+                className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#e6007e]"
+              />
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs italic text-white/55">{d.cohort.note}</p>
+      </div>
+
       <div className="grid items-start gap-3 md:grid-cols-2">
         <Card>
           <h3 className="font-semibold text-[#ebe7ef]">{d.tradeoff.title}</h3>
@@ -414,103 +430,139 @@ export function ExperienceModule() {
   );
 }
 
-/* 08 — a proposed pilot: what is measured, why it matters, when to scale
-   vs. pivot. Rendered full-width (see `wide` in momo-case-study.tsx) so the
-   three cards get real room. Cards share one height; rows inside each card
-   distribute evenly, so no card ends with dead space. No results, no
-   progress bar. */
-function GroupLabel({
-  children,
-  accent,
-}: {
-  children: React.ReactNode;
-  accent?: boolean;
-}) {
-  return (
-    <p
-      className={cn(
-        "text-xs font-semibold uppercase tracking-wide",
-        accent ? "text-[#ff4fa8]" : "text-white/55",
-      )}
-    >
-      {children}
-    </p>
-  );
-}
+/* 08 — a proposed pilot: three compact metric cards (business, primary,
+   counter) plus a short "if the pilot works" path. Rendered full-width (see
+   `wide` in momo-case-study.tsx). No results, no progress bar. */
+const METRIC_TONE = {
+  pink: {
+    card: "border-[#e6007e]/35 bg-[#e6007e]/[0.07]",
+    label: "text-[#ff4fa8]",
+    target: "text-[#ff4fa8]",
+  },
+  warn: {
+    card: "border-[#ef4444]/40 bg-[#ef4444]/[0.06]",
+    label: "text-[#f87171]",
+    target: "text-[#f87171]",
+  },
+} as const;
 
 export function MeasureModule() {
-  const m = c.measure;
-  const { experiment, priority, rule } = m.cards;
+  const { statusLabel, proposedLabel, metrics, pivotSignals, scalePath } = c.measure;
 
   return (
-    <div className="space-y-4">
-      <p className="inline-block rounded-md border border-[#e6007e]/60 bg-[#e6007e]/10 px-3 py-1.5 text-sm font-semibold text-[#ebe7ef]">
-        {m.statusLabel}
+    <div className="space-y-6">
+      <p className="inline-block rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs text-white/50">
+        {statusLabel}
       </p>
 
-      <div className="grid items-stretch gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.2fr)]">
-        <Card className="flex flex-col">
-          <h3 className="font-semibold text-[#ebe7ef]">{experiment.title}</h3>
-          <ul className="mt-4 flex flex-1 flex-col divide-y divide-white/10 text-sm text-white/62">
-            {experiment.bullets.map((b) => (
-              <li key={b} className="flex flex-1 items-center gap-3 py-3 first:pt-0 last:pb-0">
-                <span
-                  aria-hidden="true"
-                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#e6007e]"
-                />
-                {b}
+      <ul className="grid items-stretch gap-3 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+        {metrics.map((m) => {
+          const tone = METRIC_TONE[m.tone];
+          const compactTarget = m.target.length > 6;
+          return (
+            <li
+              key={m.name}
+              className={cn(
+                "flex min-w-0 flex-col rounded-xl border p-4 sm:p-5 lg:row-span-2 lg:grid lg:grid-rows-subgrid",
+                tone.card,
+              )}
+            >
+              <div>
+                <p className={cn("text-[11px] font-bold uppercase tracking-[0.14em]", tone.label)}>
+                  {m.kind}
+                </p>
+                <h3 className="mt-2 text-lg font-bold leading-snug text-[#ebe7ef]">
+                  {m.name}
+                </h3>
+                {m.support ? (
+                  <p className="mt-1 text-sm leading-snug text-white/62">{m.support}</p>
+                ) : null}
+              </div>
+              <div className="mt-4 border-t border-white/10 pt-3 lg:mt-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-white/50">
+                  {proposedLabel}
+                </p>
+                <p
+                  className={cn(
+                    "font-bold leading-tight",
+                    compactTarget ? "text-2xl" : "text-3xl",
+                    tone.target,
+                  )}
+                >
+                  {m.target}
+                </p>
+                <p className="mt-0.5 text-sm text-white/72">{m.qualifier}</p>
+                {m.note ? (
+                  <p className="mt-2 text-xs leading-relaxed text-white/55">{m.note}</p>
+                ) : null}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div>
+        <h3 className="font-semibold text-[#ebe7ef]">{pivotSignals.title}</h3>
+        <div className="mt-3 overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+          <div
+            aria-hidden="true"
+            className="hidden gap-4 border-b border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/55 md:grid md:grid-cols-[1.3fr_1fr_1fr]"
+          >
+            {pivotSignals.columns.map((col) => (
+              <span key={col}>{col}</span>
+            ))}
+          </div>
+          <ul className="divide-y divide-white/10">
+            {pivotSignals.rows.map((row) => (
+              <li
+                key={row[0]}
+                className="grid gap-2 border-l-2 border-l-[#ef4444]/60 px-4 py-3 text-sm md:grid-cols-[1.3fr_1fr_1fr] md:gap-4"
+              >
+                {row.map((cell, i) => (
+                  <div key={i} className="min-w-0">
+                    <span className="block text-[10px] font-semibold uppercase tracking-wide text-white/40 md:sr-only">
+                      {pivotSignals.columns[i]}
+                    </span>
+                    <span
+                      className={cn(
+                        i === 0 ? "font-medium text-[#ebe7ef]" : "text-white/62",
+                      )}
+                    >
+                      {cell}
+                    </span>
+                  </div>
+                ))}
               </li>
             ))}
           </ul>
-        </Card>
-
-        <Card className="flex flex-col">
-          <h3 className="font-semibold text-[#ebe7ef]">{priority.title}</h3>
-          <ol className="mt-4 flex flex-1 flex-col divide-y divide-white/10">
-            {priority.items.map((item, i) => (
-              <li
-                key={item.title}
-                className="flex flex-1 items-center gap-3 py-3 text-sm first:pt-0 last:pb-0"
-              >
-                <span
-                  aria-hidden="true"
-                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#e6007e]/20 text-xs font-bold text-[#ff4fa8]"
-                >
-                  {i + 1}
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-semibold text-[#ebe7ef]">
-                    {item.title}
-                  </span>
-                  <span className="mt-0.5 block text-white/62">{item.body}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </Card>
-
-        {/* Spans both columns at md (two internal columns), single column
-            at lg where it becomes the third card. */}
-        <Card className="flex flex-col md:col-span-2 lg:col-span-1">
-          <h3 className="font-semibold text-[#ebe7ef]">{rule.title}</h3>
-          <div className="mt-4 grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-1">
-            <div>
-              <GroupLabel accent>{rule.scaleIf.label}</GroupLabel>
-              <div className="mt-2">
-                <BulletList items={rule.scaleIf.bullets} />
-              </div>
-            </div>
-            <div className="border-t border-white/10 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-4">
-              <GroupLabel>{rule.pivotIf.label}</GroupLabel>
-              <div className="mt-2">
-                <BulletList items={rule.pivotIf.bullets} />
-              </div>
-            </div>
-          </div>
-        </Card>
+        </div>
       </div>
 
-      <Note>{m.note}</Note>
+      <div>
+        <h3 className="font-semibold text-[#ebe7ef]">{scalePath.title}</h3>
+        <ol className="mt-3 grid gap-3 md:grid-cols-3">
+          {scalePath.steps.map((step, i) => (
+            <li key={step.title} className="relative">
+              <Card className="h-full">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#e6007e] text-sm font-bold text-[#ebe7ef]">
+                    {i + 1}
+                  </span>
+                  <p className="text-sm font-semibold text-[#ebe7ef]">{step.title}</p>
+                </div>
+                <p className="mt-3 text-sm text-white/62">{step.body}</p>
+              </Card>
+              {i < scalePath.steps.length - 1 ? (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="absolute -right-3 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-[#e6007e] md:block"
+                />
+              ) : null}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-xs text-white/55">{scalePath.note}</p>
+      </div>
     </div>
   );
 }

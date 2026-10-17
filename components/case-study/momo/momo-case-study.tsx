@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { CaseStudyOpenedTracker } from "@/components/analytics/case-study-opened-tracker";
-import { SECTION_IDS, SECTION_LABELS, type SectionId } from "@/lib/cases/constants";
+import { SECTION_IDS, type SectionId } from "@/lib/cases/constants";
 
 import {
   MOMO_V2_CASE_ID,
@@ -9,6 +9,7 @@ import {
   MOMO_V2_COMPLETION_SECTION,
   MOMO_V2_DISPLAY_POSITION,
   MOMO_V2_EVENTS_ENABLED,
+  MOMO_SECTION_LABELS,
 } from "./momo-config";
 import { momoContent } from "./momo-content";
 import { MomoHero } from "./momo-hero";
@@ -71,7 +72,7 @@ export function MomoCaseStudy({ trackingAllowed }: { trackingAllowed: boolean })
                 key={id}
                 sectionId={id}
                 sectionIndex={i + 1}
-                title={SECTION_LABELS[id]}
+                title={MOMO_SECTION_LABELS[id]}
                 blurb={momoContent.sections[id].blurb}
                 caseId={MOMO_V2_CASE_ID}
                 completionSectionId={MOMO_V2_COMPLETION_SECTION}

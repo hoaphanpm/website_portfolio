@@ -1,3 +1,5 @@
+import { SECTION_LABELS, type SectionId } from "@/lib/cases/constants";
+
 /**
  * MoMo v2 page configuration — the two values that decide how this static
  * page participates in analytics. Both are deliberately inert for the
@@ -32,3 +34,13 @@ export const MOMO_V2_COMPLETION_SECTION = "reflection";
  * this is empty or not a valid https URL. Never put an invented URL here.
  */
 export const MIRO_CASE_STUDY_URL = "";
+
+/**
+ * Visible section labels for this page only. The shared SECTION_LABELS
+ * (used by every case study) still says "Experience"; the section id and
+ * tracking value stay `experience`.
+ */
+export const MOMO_SECTION_LABELS: Record<SectionId, string> = {
+  ...SECTION_LABELS,
+  experience: "Experiment",
+};
