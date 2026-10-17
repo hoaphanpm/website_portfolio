@@ -1,0 +1,265 @@
+{
+    "case": {
+        "id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+        "tags": [
+            "Lending",
+            "JTBD",
+            "Product Discovery",
+            "Product Strategy",
+            "AI"
+        ],
+        "status": "draft",
+        "case_id": "vpbank-ai-debt-management",
+        "summary": "A two-phase product strategy to help multi-loan customers first control repayment risk, then prevent it earlier.",
+        "headline": "Helping borrowers avoid late payments before they happen.",
+        "case_name": "VPBank - AI-Assisted Debt Management",
+        "created_at": "2026-09-21T17:10:32.134153+00:00",
+        "updated_at": "2026-10-02T23:44:08.58648+00:00",
+        "artifact_url": "https://claude.ai/public/artifacts/00fc3440-5c48-4877-bd1e-6472e0d224f3",
+        "hero_image_id": "c0c66bcb-eb62-4d81-a6f2-c05b88dd49b0",
+        "artifact_label": "Explore prototype ↗",
+        "display_position": 3,
+        "completion_section": "reflection",
+        "first_published_at": null
+    },
+    "_meta": {
+        "note": "Draft CMS content, unmodified. Images not downloaded.",
+        "source": "local Supabase (127.0.0.1:54321) Postgres, read-only SELECT",
+        "exported_at": "2026-10-14T23:36:16.68373+00:00"
+    },
+    "images": [
+        {
+            "id": "c03399ff-3210-4a89-aeac-c28c80ec1525",
+            "width": 2006,
+            "height": 784,
+            "caption": "The product opportunity moved from awareness to decision support.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Comparison between repayment reminders and early decision support",
+            "mime_type": "image/png",
+            "created_at": "2026-09-21T17:15:38.982931+00:00",
+            "section_id": "08e42668-b4a3-47af-a4cf-7cebe4db7cca",
+            "size_bytes": 1214198,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/db35ec3b-9328-48d6-8719-ac133d6e7107.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "d80c706b-f5e5-47c6-92f6-0062ad925064",
+            "width": 1672,
+            "height": 941,
+            "caption": "From growing repayment complexity to a two-phase strategy: control existing risk, then prevent it earlier.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "At-a-glance overview connecting VPBank retail lending growth, multi-loan repayment complexity, and the two-phase Control and Prevent product strategy.",
+            "mime_type": "image/png",
+            "created_at": "2026-09-21T17:16:51.945093+00:00",
+            "section_id": "f7da5ccb-c235-47cc-a1f8-cc302a332400",
+            "size_bytes": 1333574,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/a13efded-4ef0-4805-9eda-67e026deb99c.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "05bd1acb-1598-471c-b1b3-e060f7fdab88",
+            "width": 2006,
+            "height": 784,
+            "caption": "Where customers lose visibility before repayment becomes urgent.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Customer repayment journey across a multi-loan repayment cycle",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T20:35:01.714058+00:00",
+            "section_id": "21904469-498e-4893-9092-60ce42520bc5",
+            "size_bytes": 1137084,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/deb3de32-61a2-4876-ba94-252f58580d12.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "56a19316-0c04-4c23-9e9d-029e4e0901f7",
+            "width": 2056,
+            "height": 765,
+            "caption": "The issue is fragmented decision-making, not simply missing reminders.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Causes of late repayment risk for customers managing multiple loans",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T22:00:10.226042+00:00",
+            "section_id": "f26d2bd9-0e30-4e98-bf58-26005a4a36e6",
+            "size_bytes": 1197295,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/56a19316-0c04-4c23-9e9d-029e4e0901f7.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "e29bc4fd-6eb9-4912-a473-463b6983c25f",
+            "width": 2006,
+            "height": 784,
+            "caption": "Solve the immediate decision problem first, then move intervention upstream.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Product decision showing the progression from debt control to risk prevention",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T22:24:03.263238+00:00",
+            "section_id": "aeb4f97f-ff1a-40c7-8e71-3cd897c60627",
+            "size_bytes": 1093431,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/229fa67c-e3bf-4274-a681-9cff1589d858.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "6954b04c-7a96-4692-ba8c-f3e1eb6d1e75",
+            "width": 2006,
+            "height": 784,
+            "caption": "Phase 1 — Help customers detect, prioritize, and act on an existing repayment risk.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Phase 1 Debt Management flow from early risk detection to recovery",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T22:53:22.96902+00:00",
+            "section_id": "bc4eb15a-77ef-4fe8-a9c0-68067e28834a",
+            "size_bytes": 1485078,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/7af0edd6-b2a8-4185-a0f0-7f79eb8cfd76.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "887cf0f4-8cb1-4ee5-8f66-619d30e6c163",
+            "width": 2006,
+            "height": 784,
+            "caption": "Phase 2 — Help customers understand what is truly safe to spend before repayment money is affected.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Phase 2 AI Risk Prevention flow from safe-to-spend to spending adjustment",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T22:53:50.114588+00:00",
+            "section_id": "bc4eb15a-77ef-4fe8-a9c0-68067e28834a",
+            "size_bytes": 1365236,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/1331c156-b0f2-4960-9112-ad5df832a7f2.png",
+            "display_order": 2,
+            "is_decorative": false
+        },
+        {
+            "id": "1e5158e7-dc09-4f8d-ab4c-2a2899c1e752",
+            "width": 1672,
+            "height": 941,
+            "caption": "Success requires a behavior change — not simply feature engagement.",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Validation funnel from product exposure to repayment outcome",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T23:25:33.699737+00:00",
+            "section_id": "e6ef31f2-c2f5-414d-a374-5439e281b109",
+            "size_bytes": 1195649,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/1c84f461-0f8b-4613-8719-5dfa79c13c72.png",
+            "display_order": 1,
+            "is_decorative": false
+        },
+        {
+            "id": "c0c66bcb-eb62-4d81-a6f2-c05b88dd49b0",
+            "width": 2006,
+            "height": 784,
+            "caption": null,
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "alt_text": "Two-phase product strategy for controlling and preventing repayment risk",
+            "mime_type": "image/png",
+            "created_at": "2026-10-02T23:43:49.821191+00:00",
+            "section_id": null,
+            "size_bytes": 1237368,
+            "storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/c0c66bcb-eb62-4d81-a6f2-c05b88dd49b0.png",
+            "display_order": 0,
+            "is_decorative": false
+        }
+    ],
+    "sections": [
+        {
+            "id": "f7da5ccb-c235-47cc-a1f8-cc302a332400",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "VPBank’s lending growth means more customers are managing multiple repayment obligations at once.\r\nThe opportunity was not simply to remind them earlier, but to help them make better decisions before repayment risk becomes urgent.",
+                "heading": "Growth creates value — and more repayment complexity."
+            },
+            "created_at": "2026-09-21T17:11:11.487378+00:00",
+            "section_id": "overview",
+            "updated_at": "2026-10-06T17:05:37.902932+00:00",
+            "section_index": 1
+        },
+        {
+            "id": "f26d2bd9-0e30-4e98-bf58-26005a4a36e6",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "The real problem was not a lack of reminders.\r\nCustomers could know each loan individually and still struggle to see the full repayment picture — especially when money became limited.",
+                "heading": "The problem was not another repayment reminder."
+            },
+            "created_at": "2026-09-21T17:11:42.92663+00:00",
+            "section_id": "problem",
+            "updated_at": "2026-10-06T17:05:37.902932+00:00",
+            "section_index": 2
+        },
+        {
+            "id": "21904469-498e-4893-9092-60ce42520bc5",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "I treated the initial problem as a hypothesis and followed the repayment journey before deciding what to build.\r\nThe recurring pattern was clear: fragmented visibility led to late awareness, then weak prioritization when options were already limited.",
+                "heading": "I treated the initial problem as a hypothesis."
+            },
+            "created_at": "2026-09-21T17:11:58.07433+00:00",
+            "section_id": "evidence",
+            "updated_at": "2026-10-06T17:05:37.902932+00:00",
+            "section_index": 3
+        },
+        {
+            "id": "08e42668-b4a3-47af-a4cf-7cebe4db7cca",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "Better reminders were not enough.\r\nA reminder can tell customers that payment is due. It cannot recover money that has already been spent.\r\nThe opportunity shifted from:\r\n\r\nREMIND\r\n“Your payment is due.”\r\nto:\r\nDECIDE\r\n“You may be short. Here is what needs attention first.”\r\n\r\nSee the risk → Understand it → Act early",
+                "heading": "Repayment risk starts before the due date."
+            },
+            "created_at": "2026-09-21T17:12:10.232922+00:00",
+            "section_id": "insight",
+            "updated_at": "2026-10-06T17:05:37.902932+00:00",
+            "section_index": 4
+        },
+        {
+            "id": "aeb4f97f-ff1a-40c7-8e71-3cd897c60627",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "I chose decision support over more reminders, full budgeting, or heavy automation.\r\nStart by helping customers control an existing shortfall, then move upstream to prevent that shortfall from being created.",
+                "heading": "Control first. Prevent next."
+            },
+            "created_at": "2026-09-21T17:12:24.055617+00:00",
+            "section_id": "decision",
+            "updated_at": "2026-10-06T17:05:37.902932+00:00",
+            "section_index": 5
+        },
+        {
+            "id": "bc4eb15a-77ef-4fe8-a9c0-68067e28834a",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "The solution became two connected experiences: Control → Prevent.\r\nPhase 1 helps customers recover when repayment risk already exists; Phase 2 helps protect repayment money before spending creates that risk.\r\nIf prevention fails:\r\nPhase 2 → Shortfall → Phase 1",
+                "heading": "Two connected experiences: Control → Prevent"
+            },
+            "created_at": "2026-10-02T22:52:09.566167+00:00",
+            "section_id": "solution",
+            "updated_at": "2026-10-06T17:05:37.902932+00:00",
+            "section_index": 6
+        },
+        {
+            "id": "e6ef31f2-c2f5-414d-a374-5439e281b109",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "Because these concepts have not been launched, I would validate behavior change rather than claim business impact.\r\nThe key test is whether customers change a decision early enough to reduce shortfalls and improve repayment outcomes.",
+                "heading": "Measure behavior change, not feature usage."
+            },
+            "created_at": "2026-09-21T17:15:09.436667+00:00",
+            "section_id": "measure",
+            "updated_at": "2026-10-06T17:06:01.388711+00:00",
+            "section_index": 7
+        },
+        {
+            "id": "4da25b96-9034-44a5-82b1-cfc7a914823f",
+            "case_id": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+            "content": {
+                "body": "Looking back, I started too close to the repayment moment.\r\nThe more I worked through the problem, the more I realized that helping customers recover is useful — but preventing the problem earlier may be more valuable.\r\nI would still need real customer behavior to prove whether that assumption is true.",
+                "heading": "The product opportunity moved upstream."
+            },
+            "created_at": "2026-09-21T17:15:21.641728+00:00",
+            "section_id": "reflection",
+            "updated_at": "2026-10-12T20:23:17.752045+00:00",
+            "section_index": 8
+        }
+    ]
+}

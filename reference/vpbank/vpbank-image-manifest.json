@@ -1,0 +1,222 @@
+{
+  "case_id": "vpbank-ai-debt-management",
+  "case_uuid": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b",
+  "images": [
+    {
+      "order": 1,
+      "section": "hero",
+      "index_in_section": 1,
+      "image_id": "c0c66bcb-eb62-4d81-a6f2-c05b88dd49b0",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/c0c66bcb-eb62-4d81-a6f2-c05b88dd49b0.png",
+      "local_path": "public/images/case-studies/vpbank/00-hero-01.png",
+      "alt_text": "Two-phase product strategy for controlling and preventing repayment risk",
+      "caption": null,
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1237368,
+        "width": 2006,
+        "height": 784
+      },
+      "actual": {
+        "size_bytes": 1237368,
+        "width": 2006,
+        "height": 784,
+        "sha256": "7fa1bded81d4b98553a1621bef0834adb52d72f7f7ad7f68c5c88f3e93e03880"
+      },
+      "verified": true
+    },
+    {
+      "order": 2,
+      "section": "overview",
+      "index_in_section": 1,
+      "image_id": "d80c706b-f5e5-47c6-92f6-0062ad925064",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/a13efded-4ef0-4805-9eda-67e026deb99c.png",
+      "local_path": "public/images/case-studies/vpbank/01-overview-01.png",
+      "alt_text": "At-a-glance overview connecting VPBank retail lending growth, multi-loan repayment complexity, and the two-phase Control and Prevent product strategy.",
+      "caption": "From growing repayment complexity to a two-phase strategy: control existing risk, then prevent it earlier.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1333574,
+        "width": 1672,
+        "height": 941
+      },
+      "actual": {
+        "size_bytes": 1333574,
+        "width": 1672,
+        "height": 941,
+        "sha256": "62c9b307dcdfeb1a4115dbdd6e9109a52cd17222ef8a7db7aeac6e63a3b5713a"
+      },
+      "verified": true
+    },
+    {
+      "order": 3,
+      "section": "problem",
+      "index_in_section": 1,
+      "image_id": "56a19316-0c04-4c23-9e9d-029e4e0901f7",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/56a19316-0c04-4c23-9e9d-029e4e0901f7.png",
+      "local_path": "public/images/case-studies/vpbank/02-problem-01.png",
+      "alt_text": "Causes of late repayment risk for customers managing multiple loans",
+      "caption": "The issue is fragmented decision-making, not simply missing reminders.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1197295,
+        "width": 2056,
+        "height": 765
+      },
+      "actual": {
+        "size_bytes": 1197295,
+        "width": 2056,
+        "height": 765,
+        "sha256": "0937dca011374c2bcb3f0216aba88d7f798da1549ec1c3c5df7d63ab932bbe47"
+      },
+      "verified": true
+    },
+    {
+      "order": 4,
+      "section": "evidence",
+      "index_in_section": 1,
+      "image_id": "05bd1acb-1598-471c-b1b3-e060f7fdab88",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/deb3de32-61a2-4876-ba94-252f58580d12.png",
+      "local_path": "public/images/case-studies/vpbank/03-evidence-01.png",
+      "alt_text": "Customer repayment journey across a multi-loan repayment cycle",
+      "caption": "Where customers lose visibility before repayment becomes urgent.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1137084,
+        "width": 2006,
+        "height": 784
+      },
+      "actual": {
+        "size_bytes": 1137084,
+        "width": 2006,
+        "height": 784,
+        "sha256": "67702d3e756dce5c4e13b7dc53c43ad0e0bb6ae1aaed3d149c71e66e4deb537f"
+      },
+      "verified": true
+    },
+    {
+      "order": 5,
+      "section": "insight",
+      "index_in_section": 1,
+      "image_id": "c03399ff-3210-4a89-aeac-c28c80ec1525",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/db35ec3b-9328-48d6-8719-ac133d6e7107.png",
+      "local_path": "public/images/case-studies/vpbank/04-insight-01.png",
+      "alt_text": "Comparison between repayment reminders and early decision support",
+      "caption": "The product opportunity moved from awareness to decision support.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1214198,
+        "width": 2006,
+        "height": 784
+      },
+      "actual": {
+        "size_bytes": 1214198,
+        "width": 2006,
+        "height": 784,
+        "sha256": "06806f0589a5aa648bca229a0106af4da88f59d97e373c870eec6124a1e6c21d"
+      },
+      "verified": true
+    },
+    {
+      "order": 6,
+      "section": "decision",
+      "index_in_section": 1,
+      "image_id": "e29bc4fd-6eb9-4912-a473-463b6983c25f",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/229fa67c-e3bf-4274-a681-9cff1589d858.png",
+      "local_path": "public/images/case-studies/vpbank/05-decision-01.png",
+      "alt_text": "Product decision showing the progression from debt control to risk prevention",
+      "caption": "Solve the immediate decision problem first, then move intervention upstream.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1093431,
+        "width": 2006,
+        "height": 784
+      },
+      "actual": {
+        "size_bytes": 1093431,
+        "width": 2006,
+        "height": 784,
+        "sha256": "48cd5731ff0aef10daf238c3800fa158816e13c76e2bedcb52a07bc26624b6f0"
+      },
+      "verified": true
+    },
+    {
+      "order": 7,
+      "section": "solution",
+      "index_in_section": 1,
+      "image_id": "6954b04c-7a96-4692-ba8c-f3e1eb6d1e75",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/7af0edd6-b2a8-4185-a0f0-7f79eb8cfd76.png",
+      "local_path": "public/images/case-studies/vpbank/06-solution-01.png",
+      "alt_text": "Phase 1 Debt Management flow from early risk detection to recovery",
+      "caption": "Phase 1 — Help customers detect, prioritize, and act on an existing repayment risk.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1485078,
+        "width": 2006,
+        "height": 784
+      },
+      "actual": {
+        "size_bytes": 1485078,
+        "width": 2006,
+        "height": 784,
+        "sha256": "22308b2a3e917c3ce2f32eedf45c897c9f9ffe3f0ea2982eec20416ad8912b59"
+      },
+      "verified": true
+    },
+    {
+      "order": 8,
+      "section": "solution",
+      "index_in_section": 2,
+      "image_id": "887cf0f4-8cb1-4ee5-8f66-619d30e6c163",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/1331c156-b0f2-4960-9112-ad5df832a7f2.png",
+      "local_path": "public/images/case-studies/vpbank/06-solution-02.png",
+      "alt_text": "Phase 2 AI Risk Prevention flow from safe-to-spend to spending adjustment",
+      "caption": "Phase 2 — Help customers understand what is truly safe to spend before repayment money is affected.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1365236,
+        "width": 2006,
+        "height": 784
+      },
+      "actual": {
+        "size_bytes": 1365236,
+        "width": 2006,
+        "height": 784,
+        "sha256": "fc6b9135d524d96a7ee9d9afd2200867c3efad87dc747ad7718d9ca4bae9d596"
+      },
+      "verified": true
+    },
+    {
+      "order": 9,
+      "section": "measure",
+      "index_in_section": 1,
+      "image_id": "1e5158e7-dc09-4f8d-ab4c-2a2899c1e752",
+      "original_storage_path": "f192686e-a2db-4ae9-9d8e-9f6ec3b6654b/1c84f461-0f8b-4613-8719-5dfa79c13c72.png",
+      "local_path": "public/images/case-studies/vpbank/08-measure-01.png",
+      "alt_text": "Validation funnel from product exposure to repayment outcome",
+      "caption": "Success requires a behavior change — not simply feature engagement.",
+      "is_decorative": false,
+      "mime_type": "image/png",
+      "expected": {
+        "size_bytes": 1195649,
+        "width": 1672,
+        "height": 941
+      },
+      "actual": {
+        "size_bytes": 1195649,
+        "width": 1672,
+        "height": 941,
+        "sha256": "f94b8c8741600f6bc69a801e06927d2cb00e6c6502e9bec1b255b3b4fb5a0596"
+      },
+      "verified": true
+    }
+  ]
+}
