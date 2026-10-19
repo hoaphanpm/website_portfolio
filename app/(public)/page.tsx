@@ -9,11 +9,29 @@ import { Journey } from "@/components/home/journey";
 import { SelectedWork } from "@/components/home/selected-work";
 import { Writing } from "@/components/home/writing";
 import { computeTrackingAllowed } from "@/lib/analytics/gating";
-import { siteConfig } from "@/lib/site-config";
+import {
+  HOME_DESCRIPTION,
+  HOME_SOCIAL_DESCRIPTION,
+  HOME_TITLE,
+  SITE_NAME,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: siteConfig.name,
-  description: siteConfig.hero.subtext,
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: HOME_TITLE,
+    description: HOME_SOCIAL_DESCRIPTION,
+    url: "/",
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: HOME_TITLE,
+    description: HOME_SOCIAL_DESCRIPTION,
+  },
 };
 
 type HomePageProps = {
