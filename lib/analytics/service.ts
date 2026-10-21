@@ -1,5 +1,6 @@
 import mixpanel from "mixpanel-browser";
 import { getDeviceType } from "@/lib/analytics/device";
+import { isClientHostAllowed } from "@/lib/analytics/environment";
 import { captureLandingUtm } from "@/lib/analytics/utm";
 import type { EventName } from "@/lib/analytics/constants";
 
@@ -100,13 +101,7 @@ export function isAnalyticsInitialized(): boolean {
 function isClientTrackingAllowed(): boolean {
   if (typeof window === "undefined") return false;
 
-  const { hostname } = window.location;
-  if (hostname === "localhost" || hostname === "127.0.0.1") return false;
-
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("preview") === "true") return false;
-
-  return true;
+  return isClientHostAllowed(window.location.hostname, window.location.search);
 }
 
 /**
