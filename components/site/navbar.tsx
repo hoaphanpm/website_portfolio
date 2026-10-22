@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
@@ -11,9 +13,9 @@ export function Navbar() {
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4 sm:px-6">
-        <a href="#top" className="font-semibold">
+        <Link href="/" className="font-semibold">
           {siteConfig.name}
-        </a>
+        </Link>
 
         <nav
           aria-label="Primary"
