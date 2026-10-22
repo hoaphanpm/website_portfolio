@@ -262,7 +262,7 @@ Every event also gets `device_type` automatically, and the session's UTM values 
 ### Tracking gate
 
 Checked before Mixpanel is ever initialized:
-- **Server:** tracking is allowed only when `VERCEL_ENV` is `production`, there's no admin session, and there's no `preview=true`. The result is passed to the client with the page.
+- **Server:** tracking is allowed only when `VERCEL_ENV` is `production`, there's no admin session, and there's no `preview=true`. The result is passed to the client with the page. The one exception is an explicit QA opt-in on Vercel Preview: the deployment must be a Preview of `integration/hardcoded-case-studies` (`VERCEL_GIT_COMMIT_REF`), `NEXT_PUBLIC_MIXPANEL_QA_PREVIEW` must be exactly `true`, and the Mixpanel token must be present; the admin and `preview=true` exclusions still apply, and any missing piece keeps tracking off (`lib/analytics/environment.ts`).
 - **Client:** the Analytics Service also checks that the hostname isn't `localhost` and the URL has no `?preview=true`.
 - If either check fails, Mixpanel is never initialized; in development, events are only logged to the console.
 - The Mixpanel token is only configured in the production environment.

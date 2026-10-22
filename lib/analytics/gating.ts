@@ -1,5 +1,25 @@
+import {
+  decideTracking,
+  isTrackingEnvironmentAllowed,
+  type TrackingEnv,
+} from "@/lib/analytics/environment";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createClient } from "@/lib/supabase/server";
+
+/**
+ * The values the gate reads. NEXT_PUBLIC_* are referenced literally so Next
+ * inlines them at build time, matching what the client bundle actually
+ * contains (e.g. the token); the VERCEL_* values are read at runtime on the
+ * server.
+ */
+function readTrackingEnv(): TrackingEnv {
+  return {
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,
+    NEXT_PUBLIC_MIXPANEL_QA_PREVIEW: process.env.NEXT_PUBLIC_MIXPANEL_QA_PREVIEW,
+    NEXT_PUBLIC_MIXPANEL_TOKEN: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN,
+  };
+}
 
 /**
  * The env+admin two-thirds of the gate, on its own. Exists because the
@@ -10,17 +30,20 @@ import { createClient } from "@/lib/supabase/server";
  * instead of computeTrackingAllowed() below.
  *
  * VERCEL_ENV is always undefined in local dev, so this is always false
- * locally by design — this whole path is inherently unverifiable end-to-end
- * outside of an actual production deployment.
+ * locally by design. On Vercel it is allowed in Production, and on Preview
+ * only for the explicit QA opt-in in lib/analytics/environment.ts (the QA
+ * branch, NEXT_PUBLIC_MIXPANEL_QA_PREVIEW=true and a token); all other
+ * Preview deployments stay off.
  */
 export async function computeTrackingAllowedBase(): Promise<boolean> {
-  if (process.env.VERCEL_ENV !== "production") {
+  const env = readTrackingEnv();
+  if (!isTrackingEnvironmentAllowed(env)) {
     return false;
   }
 
   const supabase = await createClient();
   const isAdmin = await requireAdmin(supabase);
-  return !isAdmin;
+  return decideTracking(env, { isAdmin, previewQuery: false });
 }
 
 /**

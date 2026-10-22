@@ -8,13 +8,14 @@ export function ContactSection({
 }: {
   trackingAllowed: boolean;
 }) {
-  const { heading, subtext, email, linkedinUrl } = siteConfig.contact;
+  const { heading, subtext } = siteConfig.contact;
+  const { email, linkedinUrl } = siteConfig.social;
 
   return (
     <section id="contact" className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <div className="rounded-lg border border-border p-8">
         <h2 className="text-2xl font-semibold">{heading}</h2>
-        <p className="mt-2 text-muted-foreground">{subtext}</p>
+        {subtext ? <p className="mt-2 text-muted-foreground">{subtext}</p> : null}
         <div className="mt-6 flex flex-wrap gap-3">
           {email ? (
             <HighIntentLink
