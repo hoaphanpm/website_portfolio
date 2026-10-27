@@ -11,6 +11,7 @@ export type SessionUtm = {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  utm_content?: string;
 };
 
 const STORAGE_KEY = "analytics_session_utm";
@@ -22,10 +23,12 @@ function readFromUrl(): SessionUtm {
   const source = params.get("utm_source");
   const medium = params.get("utm_medium");
   const campaign = params.get("utm_campaign");
+  const content = params.get("utm_content");
 
   if (source) utm.utm_source = source;
   if (medium) utm.utm_medium = medium;
   if (campaign) utm.utm_campaign = campaign;
+  if (content) utm.utm_content = content;
 
   return utm;
 }

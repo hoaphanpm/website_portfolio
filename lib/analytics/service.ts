@@ -1,7 +1,7 @@
 import mixpanel from "mixpanel-browser";
 import { getDeviceType } from "@/lib/analytics/device";
 import { isClientHostAllowed } from "@/lib/analytics/environment";
-import { captureLandingUtm } from "@/lib/analytics/utm";
+import { captureLandingUtm, type SessionUtm } from "@/lib/analytics/utm";
 import type { EventName } from "@/lib/analytics/constants";
 
 /**
@@ -18,6 +18,19 @@ import type { EventName } from "@/lib/analytics/constants";
  */
 
 let initialized = false;
+
+// This tab's UTM attribution (sessionStorage-backed, see utm.ts), attached
+// directly to every event. Deliberately NOT a Mixpanel super property:
+// those persist in localStorage, shared across tabs and sessions, which
+// leaks one tab's or visit's campaign into another.
+let sessionUtm: SessionUtm = {};
+
+const UTM_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+] as const;
 
 export function initAnalytics(): void {
   if (initialized) return;
@@ -44,15 +57,19 @@ export function initAnalytics(): void {
 
   const utm = captureLandingUtm();
 
-  // Session-scoped: attached to every event for the rest of this browser
-  // session via Mixpanel's own super-property persistence.
-  if (Object.keys(utm).length > 0) {
-    try {
-      mixpanel.register(utm);
-    } catch {
-      // Non-fatal — events will simply lack UTM super properties.
-    }
+  sessionUtm = utm;
 
+  // Clear UTM super properties left in shared localStorage (by earlier
+  // visits or versions) so they can't leak onto this session's events.
+  for (const key of UTM_KEYS) {
+    try {
+      mixpanel.unregister(key);
+    } catch {
+      // Non-fatal.
+    }
+  }
+
+  if (Object.keys(utm).length > 0) {
     // Anonymous first-touch UTA — set_once() never overwrites a value
     // already recorded for this distinct_id on an earlier visit. No PII,
     // no mixpanel.identify() call anywhere in this app.
@@ -73,6 +90,7 @@ export function trackEvent(
   }
 
   const payload = {
+    ...sessionUtm,
     ...properties,
     device_type: getDeviceType(),
   };
