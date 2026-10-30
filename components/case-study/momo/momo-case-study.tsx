@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CaseStudyOpenedTracker } from "@/components/analytics/case-study-opened-tracker";
+import { SectionEngagementTracker } from "@/components/analytics/section-engagement-tracker";
 
 import {
   MOMO_V2_CASE_ID,
@@ -62,6 +63,12 @@ export function MomoCaseStudy({ trackingAllowed }: { trackingAllowed: boolean })
             caseId={MOMO_V2_CASE_ID}
             caseName={MOMO_V2_CASE_NAME}
             displayPosition={MOMO_V2_DISPLAY_POSITION}
+            trackingAllowed={trackingAllowed}
+            eventsEnabled={eventsEnabled}
+          />
+          <SectionEngagementTracker
+            caseId={MOMO_V2_CASE_ID}
+            sectionIds={MOMO_SECTION_IDS}
             trackingAllowed={trackingAllowed}
             eventsEnabled={eventsEnabled}
           />

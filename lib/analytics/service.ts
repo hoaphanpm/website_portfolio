@@ -89,9 +89,15 @@ export function initAnalytics(): void {
   }
 }
 
+export type TrackOptions = {
+  /** Page is hiding/unloading: bypass batching and use sendBeacon. */
+  unloading?: boolean;
+};
+
 export function trackEvent(
   eventName: EventName,
   properties: Record<string, unknown> = {},
+  options: TrackOptions = {},
 ): void {
   if (!initialized) {
     return;
@@ -104,7 +110,16 @@ export function trackEvent(
   };
 
   try {
-    mixpanel.track(eventName, payload);
+    if (options.unloading) {
+      // The SDK's own visibilitychange flush runs before ours, so an event
+      // queued here would miss it; send it directly instead.
+      mixpanel.track(eventName, payload, {
+        transport: "sendBeacon",
+        send_immediately: true,
+      });
+    } else {
+      mixpanel.track(eventName, payload);
+    }
   } catch {
     // Never let a tracking failure affect the page.
   }
@@ -207,12 +222,13 @@ export function attemptTrackedEvent(
   trackingAllowed: boolean,
   eventName: EventName,
   properties: Record<string, unknown>,
+  options: TrackOptions = {},
 ): boolean {
   // Re-checked per event so switching to internal mode mid-session stops
   // an already-initialized SDK as well.
   if (typeof window !== "undefined" && isInternalQaMode()) return false;
   ensureAnalyticsReady(trackingAllowed);
   if (!isAnalyticsInitialized()) return false;
-  trackEvent(eventName, properties);
+  trackEvent(eventName, properties, options);
   return true;
 }

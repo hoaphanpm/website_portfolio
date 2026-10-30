@@ -8,13 +8,18 @@
  * (Milestone 3), which is already the single source of truth.
  */
 
-/** Exactly these 5 events — portfolio-tracking-spec.md §2. Never add a 6th. */
+/**
+ * The 5 events of portfolio-tracking-spec.md §2, plus CASE_SECTION_ENGAGED
+ * (active section reading time), the one addition explicitly approved after
+ * the spec. Do not add others without the same approval.
+ */
 export const EVENT_NAMES = {
   PORTFOLIO_VIEWED: "portfolio_viewed",
   CASE_STUDY_OPENED: "case_study_opened",
   CASE_SECTION_VIEWED: "case_section_viewed",
   CASE_STUDY_COMPLETED: "case_study_completed",
   HIGH_INTENT_ACTION: "high_intent_action",
+  CASE_SECTION_ENGAGED: "case_section_engaged",
 } as const;
 
 export type EventName = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
@@ -65,3 +70,15 @@ export type HighIntentLocation = (typeof HIGH_INTENT_LOCATIONS)[number];
  */
 export const SECTION_VIEW_MIN_DWELL_MS = 2000;
 export const SECTION_VIEW_VISIBILITY_RATIO = 0.5;
+
+/**
+ * case_section_engaged (active reading time). Time counts only while the tab
+ * is visible, the section is the dominant visible one, and the user has
+ * interacted within SECTION_ENGAGEMENT_IDLE_MS. Pending time is sent when the
+ * user leaves the section or the page, and only once it reaches
+ * SECTION_ENGAGEMENT_MIN_SEND_MS (shorter passes are noise, never sent as 0).
+ */
+export const SECTION_ENGAGEMENT_IDLE_MS = 60_000;
+export const SECTION_ENGAGEMENT_MIN_SEND_MS = 1000;
+/** Throttle for interaction listeners (scroll/pointer/key/touch). */
+export const SECTION_ENGAGEMENT_INTERACTION_THROTTLE_MS = 1000;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CaseStudyOpenedTracker } from "@/components/analytics/case-study-opened-tracker";
+import { SectionEngagementTracker } from "@/components/analytics/section-engagement-tracker";
 
 import {
   VPBANK_CASE_ID,
@@ -76,6 +77,12 @@ export function VpbankCaseStudy({ trackingAllowed }: { trackingAllowed: boolean 
             caseId={VPBANK_CASE_ID}
             caseName={VPBANK_CASE_NAME}
             displayPosition={VPBANK_DISPLAY_POSITION}
+            trackingAllowed={trackingAllowed}
+            eventsEnabled={eventsEnabled}
+          />
+          <SectionEngagementTracker
+            caseId={VPBANK_CASE_ID}
+            sectionIds={BUILT}
             trackingAllowed={trackingAllowed}
             eventsEnabled={eventsEnabled}
           />
