@@ -62,3 +62,25 @@ export function isClientHostAllowed(hostname: string, search: string): boolean {
   if (new URLSearchParams(search).get("preview") === "true") return false;
   return true;
 }
+
+export const INTERNAL_QA_STORAGE_KEY = "portfolio_internal_qa";
+
+export type InternalModeDecision = {
+  internal: boolean;
+  /** What to do with the stored flag: set it, clear it, or leave it. */
+  write: "set" | "clear" | null;
+};
+
+/**
+ * Internal QA opt-out. ?internal=1 enables, ?internal=0 disables; any other
+ * query leaves the stored state ("1") in charge.
+ */
+export function resolveInternalMode(
+  search: string,
+  stored: string | null,
+): InternalModeDecision {
+  const param = new URLSearchParams(search).get("internal");
+  if (param === "1") return { internal: true, write: "set" };
+  if (param === "0") return { internal: false, write: "clear" };
+  return { internal: stored === "1", write: null };
+}

@@ -1,7 +1,15 @@
 import mixpanel from "mixpanel-browser";
 import { getDeviceType } from "@/lib/analytics/device";
-import { isClientHostAllowed } from "@/lib/analytics/environment";
-import { captureLandingUtm, type SessionUtm } from "@/lib/analytics/utm";
+import {
+  INTERNAL_QA_STORAGE_KEY,
+  isClientHostAllowed,
+  resolveInternalMode,
+} from "@/lib/analytics/environment";
+import {
+  captureLandingUtm,
+  clearStoredUtm,
+  type SessionUtm,
+} from "@/lib/analytics/utm";
 import type { EventName } from "@/lib/analytics/constants";
 
 /**
@@ -111,6 +119,56 @@ export function isAnalyticsInitialized(): boolean {
   return initialized;
 }
 
+let internalParamApplied = false;
+let internalForPage: boolean | null = null;
+
+function readInternalFlag(): string | null {
+  try {
+    return window.localStorage.getItem(INTERNAL_QA_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Internal QA opt-out (?internal=1 / ?internal=0). localStorage is the
+ * source of truth; the URL parameter is applied once per page load. When
+ * on, analytics is never initialized, so no SDK request is ever made. If
+ * storage is unavailable the parameter still applies to this page load
+ * (fail-open afterwards).
+ */
+function isInternalQaMode(): boolean {
+  if (typeof window === "undefined") return false;
+
+  if (!internalParamApplied) {
+    internalParamApplied = true;
+    const decision = resolveInternalMode(
+      window.location.search,
+      readInternalFlag(),
+    );
+    if (decision.write === "set") {
+      internalForPage = true;
+      try {
+        window.localStorage.setItem(INTERNAL_QA_STORAGE_KEY, "1");
+      } catch {
+        // Non-fatal.
+      }
+      clearStoredUtm();
+    } else if (decision.write === "clear") {
+      internalForPage = false;
+      try {
+        window.localStorage.removeItem(INTERNAL_QA_STORAGE_KEY);
+      } catch {
+        // Non-fatal.
+      }
+    }
+  }
+
+  const stored = readInternalFlag();
+  if (stored !== null) return stored === "1";
+  return internalForPage ?? false;
+}
+
 /**
  * Client-side defense-in-depth re-check (Milestone 8 decision #8): even
  * when the server already computed trackingAllowed, never track on a
@@ -118,6 +176,7 @@ export function isAnalyticsInitialized(): boolean {
  */
 function isClientTrackingAllowed(): boolean {
   if (typeof window === "undefined") return false;
+  if (isInternalQaMode()) return false;
 
   return isClientHostAllowed(window.location.hostname, window.location.search);
 }
@@ -149,6 +208,9 @@ export function attemptTrackedEvent(
   eventName: EventName,
   properties: Record<string, unknown>,
 ): boolean {
+  // Re-checked per event so switching to internal mode mid-session stops
+  // an already-initialized SDK as well.
+  if (typeof window !== "undefined" && isInternalQaMode()) return false;
   ensureAnalyticsReady(trackingAllowed);
   if (!isAnalyticsInitialized()) return false;
   trackEvent(eventName, properties);
