@@ -53,7 +53,7 @@ Visitor browser: Case Study Renderer ──► Analytics Service ──► Mixpa
 | Admin UI, preview, `/media` for the admin | Anon key + admin session cookie | `authenticated` + `is_admin()` |
 
 **Environment variables:**
-- Public: Supabase URL, Supabase anon key, and the Mixpanel token (set only in the production environment).
+- Public: Supabase URL, Supabase anon key, and the Mixpanel token (the Production token, plus a separate QA token scoped to the approved Preview QA branch only; see Tracking gate).
 - No other secrets are needed.
 
 ---
@@ -256,8 +256,9 @@ No query parameters are used, so a copied or shared link can never carry a false
 | `case_section_viewed` | A section meets the visibility rule (D4) for 2 continuous seconds | `case_id`, `section_id`, `section_index` | `status = published`; once per case + section per browser session |
 | `case_study_completed` | Right after `case_section_viewed` fires for `completion_section` | `case_id` | `status = published`; at most once per case per session, because it depends on the deduplicated section event |
 | `high_intent_action` | A visitor clicks a CTA from the central list | `action`, `location`, `case_id` (null on the homepage) | **Not deduplicated**; every click fires |
+| `case_section_engaged` | A section was actively exposed (dominant visible section, visible tab, within 60 s of the last interaction); sent when leaving the section, hiding the tab, or leaving the case | `case_id`, `section_id`, `section_index`, `engagement_seconds` (an estimate of active exposure, not verified reading time) | **Not deduplicated**; each event carries the delta since the previous one. Currently the two hardcoded case studies only (`/work/[case_id]` does not mount the tracker) |
 
-Every event also gets `device_type` automatically, and the session's UTM values through super properties when there are any.
+Every event also gets `device_type` automatically, and the tab's session UTM values as event-level properties (not Mixpanel super properties) when there are any.
 
 ### Tracking gate
 
@@ -265,7 +266,8 @@ Checked before Mixpanel is ever initialized:
 - **Server:** tracking is allowed only when `VERCEL_ENV` is `production`, there's no admin session, and there's no `preview=true`. The result is passed to the client with the page. The one exception is an explicit QA opt-in on Vercel Preview: the deployment must be a Preview of `integration/hardcoded-case-studies` (`VERCEL_GIT_COMMIT_REF`), `NEXT_PUBLIC_MIXPANEL_QA_PREVIEW` must be exactly `true`, and the Mixpanel token must be present; the admin and `preview=true` exclusions still apply, and any missing piece keeps tracking off (`lib/analytics/environment.ts`).
 - **Client:** the Analytics Service also checks that the hostname isn't `localhost` and the URL has no `?preview=true`.
 - If either check fails, Mixpanel is never initialized; in development, events are only logged to the console.
-- The Mixpanel token is only configured in the production environment.
+- **Production:** tracking is enabled under the gating rules above.
+- **Preview:** tracking is allowed only through the explicitly approved, branch-scoped QA configuration: a Preview deployment of `integration/hardcoded-case-studies`, with `NEXT_PUBLIC_MIXPANEL_QA_PREVIEW=true` and a separate QA token scoped to that branch in Vercel. Every other Preview deployment has no such configuration, so tracking stays disabled.
 
 ### Page data
 
@@ -273,7 +275,7 @@ The server passes `case_id`, `case_name`, `status`, `display_position`, `complet
 
 ### Central lists
 
-- **Events:** the 5 above.
+- **Events:** the 6 above.
 - **Section IDs:** the 9 fixed IDs.
 - **`entry_source`:** `homepage`, `next_case`, `direct_or_external`.
 - **`action`:** `download_cv`, `linkedin_click`, `email_click`.
@@ -291,8 +293,8 @@ All use an in-memory `Set` plus `sessionStorage`. A key is written only after th
 
 ### UTM
 
-- **Current session:** read from the landing URL, saved in `sessionStorage`, and registered as super properties once tracking is allowed. If there are no UTMs, the properties are omitted entirely.
-- **First touch:** `mixpanel.people.set_once` records `first_utm_source`, `first_utm_medium`, `first_utm_campaign`; never overwritten.
+- **Current session (event-level):** `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, read from the landing URL, saved in the tab's `sessionStorage` and added to every event payload once tracking is allowed. They are not registered as super properties, and any legacy `utm_*` super properties are unregistered at init. If there are no UTMs, the properties are omitted entirely. A new tab may inherit them through the same-origin, 30-minute, non-ambiguous fallback (tracking spec §8.2a).
+- **First touch (People profile):** when a UTM exists, the code calls `mixpanel.people.set_once` with the same four property names, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`. It does NOT write `first_utm_*` properties. `set_once` applies per property and never overwrites an existing value. Open questions are listed in tracking spec §8.3.
 
 ### Device type
 
@@ -324,7 +326,7 @@ Mechanics:
 | 5 | Publish, unpublish and case reorder | Every §15 "CMS validation" row passes; `case_id` lock proven at the database level; unpublished images return 404 immediately |
 | 6 | Homepage with static config and dynamic Selected Work | A newly published case appears with no code change |
 | 7 | `/work/[case_id]` renderer, preview, 404, Back to homepage and Next case | Draft returns 404 to anon; admin preview renders the draft |
-| 8 | Analytics Service core: gating, UTM, `device_type`, `entry_source`, central lists, dedup | No Mixpanel network calls locally, on preview deployments, with an admin session, or with `?preview=true` |
-| 9 | Wiring the 5 events, including the section-view rule | Every §15 "Public tracking" row passes, including tall sections and page-level dedup |
+| 8 | Analytics Service core: gating, UTM, `device_type`, `entry_source`, central lists, dedup | No Mixpanel network calls locally, on any Preview deployment other than the approved QA branch, with an admin session, or with `?preview=true` |
+| 9 | Wiring the 6 events, including the section-view rule | Every §15 "Public tracking" row passes, including tall sections and page-level dedup |
 | 10 | Full QA pass against §15, plus reorder and dynamic-config checks | All tables pass |
 | 11 | Production launch | Mixpanel Live View confirms the funnel end to end |
