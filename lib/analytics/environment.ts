@@ -11,8 +11,9 @@
  *  - Everything else (local dev, unknown/missing environment): OFF.
  */
 
-/** The only Preview branch that may opt in to QA tracking. */
-export const QA_PREVIEW_BRANCH = "integration/hardcoded-case-studies";
+/** The only Preview branches that may opt in to QA tracking (exact match). */
+export const QA_PREVIEW_BRANCHES = ["integration/hardcoded-case-studies"] as const;
+export const QA_PREVIEW_BRANCH = QA_PREVIEW_BRANCHES[0];
 
 /**
  * The environment values the gate reads. VERCEL_ENV and VERCEL_GIT_COMMIT_REF
@@ -27,14 +28,14 @@ export type TrackingEnv = {
 };
 
 /**
- * Preview QA opt-in: a Vercel Preview deployment of QA_PREVIEW_BRANCH, with
+ * Preview QA opt-in: a Vercel Preview deployment of a QA_PREVIEW_BRANCHES branch, with
  * the flag set to exactly "true" and a Mixpanel token present.
  */
 export function isQaPreviewEnvironment(env: TrackingEnv): boolean {
   const token = env.NEXT_PUBLIC_MIXPANEL_TOKEN;
   return (
     env.VERCEL_ENV === "preview" &&
-    env.VERCEL_GIT_COMMIT_REF === QA_PREVIEW_BRANCH &&
+    QA_PREVIEW_BRANCHES.some((b) => b === env.VERCEL_GIT_COMMIT_REF) &&
     env.NEXT_PUBLIC_MIXPANEL_QA_PREVIEW === "true" &&
     typeof token === "string" &&
     token.trim() !== ""
