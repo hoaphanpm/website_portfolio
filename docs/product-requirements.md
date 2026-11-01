@@ -89,15 +89,16 @@ A newly published case must automatically:
 - use the existing Mixpanel event schema
 - require no code change
 MIXPANEL
-Use exactly these 5 events:
+Use exactly these 6 events:
 - portfolio_viewed
 - case_study_opened
 - case_section_viewed
 - case_study_completed
 - high_intent_action
-Do not create any additional events.
+- case_section_engaged
+Do not create any events beyond these 6.
 All Mixpanel calls must go through one centralized Analytics Service. UI components must never call mixpanel.track() directly.
-Analytics Service must automatically attach device_type to all five events.
+Analytics Service must automatically attach device_type to all six events.
 entry_source must use one centralized allowed-value list containing exactly:
 - homepage
 - next_case
@@ -107,7 +108,7 @@ Do not initialize or send Mixpanel events when:
 - an authenticated admin session is present
 - the URL contains `?preview=true`
 - the app is running locally
-- the deployment is not the production environment
+- the deployment is not the production environment (the only exception is the explicitly approved, branch-scoped Preview QA configuration; see the tracking spec §2)
 The case-related events:
 - case_study_opened
 - case_section_viewed
@@ -137,14 +138,14 @@ Refreshing or revisiting the page in the same browser session must not fire the 
 UTM ATTRIBUTION
 When a landing URL contains UTM parameters:
 - store current-session UTM values in sessionStorage
-- register them as Mixpanel super properties so subsequent events in the session receive them
+- attach them to every subsequent event in the tab's session as event-level properties (they are NOT registered as Mixpanel super properties, which would leak across tabs and visits)
 - use mixpanel.people.set_once() for first-touch UTM on the persistent anonymous profile
 - never overwrite first-touch user properties with later UTM values
 Analytics Service must:
 - read landing UTM values from the URL
 - store them in sessionStorage
-- register them as Mixpanel super properties only after analytics
-  initialization is allowed
+- attach them to each event payload only after analytics
+  initialization is allowed (no super properties)
 - never require UI components to pass or merge UTM properties
 - continue to use mixpanel.people.set_once() for first-touch UTM
 DATABASE SECURITY

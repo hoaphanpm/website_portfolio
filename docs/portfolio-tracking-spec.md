@@ -2,7 +2,7 @@
 
 # **Mục tiêu:** Đo hành vi recruiter trên portfolio để (1) đánh giá case study nào thuyết phục nhất, (2) so sánh hiệu quả giữa các nguồn ứng tuyển (CV gửi công ty nào), (3) dùng làm tài liệu reference duy nhất khi vibe-coding.
 
-**Scope chốt:** 5 events \+ 9 standardized sections (linh hoạt theo case) \+ UTM attribution 2 tầng (event \+ user property) \+ anonymous visitor persistence \+ 50%/2s viewing rule \+ centralized analytics service.
+**Scope chốt:** 6 events (5 events gốc + `case_section_engaged`) \+ 9 standardized sections (linh hoạt theo case) \+ UTM attribution 2 tầng (event \+ user property) \+ anonymous visitor persistence \+ 50%/2s viewing rule \+ centralized analytics service.
 
 ---
 
@@ -29,19 +29,20 @@ Chọn `decision` vì recruiter đã đi qua Problem → Evidence → Insight �
 
 ---
 
-## 2\. Event Taxonomy — chỉ 5 events
+## 2\. Event Taxonomy — chỉ 6 events
 
 | Event | Fire khi | Properties |
 | :---- | :---- | :---- |
-| `portfolio_viewed` | Public homepage được load bởi non-admin visitor — tối đa 1 lần / browser session | `utm_source`, `utm_medium`, `utm_campaign`, `device_type` |
+| `portfolio_viewed` | Public homepage được load bởi non-admin visitor — tối đa 1 lần / browser session | `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` (khi có), `device_type` |
 | `case_study_opened` | Non-admin visitor mở một case đang `published` — tối đa 1 lần / case / browser session | `case_id`, `case_name`, `entry_source`, `display_position` |
 | `case_section_viewed` | Một section của published case đạt điều kiện visible (mục 5) liên tục ≥2 giây | `case_id`, `section_id`, `section_index` |
 | `case_study_completed` | `completion_section` của published case qualify | `case_id` |
 | `high_intent_action` | Non-admin visitor click CTA quan trọng trên public website — mỗi click đều fire, không deduplicate | `action`, `location`, `case_id` (nullable) |
+| `case_section_engaged` | Thời gian section được hiển thị chủ động (mục 5.1) — gửi khi rời section, ẩn tab hoặc rời case. **Hiện chỉ áp dụng cho 2 hardcoded case study** (mục 5.1) | `case_id`, `section_id`, `section_index`, `engagement_seconds` |
 
 Không tạo event riêng theo từng case và không tạo event mới khi Admin thêm case study.
 
-Mọi case sử dụng chung 5 event và được phân biệt bằng `case_id`.
+Mọi case sử dụng chung 6 event và được phân biệt bằng `case_id`.
 
 ### **Deduplication theo browser session (đã chốt)**
 
@@ -52,6 +53,7 @@ Mọi case sử dụng chung 5 event và được phân biệt bằng `case_id`.
 | `case_section_viewed` | Tối đa 1 lần / case \+ section / browser session (mục 5) | `viewed_section:{case_id}:{section_id}` |
 | `case_study_completed` | Tự động tối đa 1 lần / case / browser session, vì chỉ fire sau `case_section_viewed` của `completion_section` đã qua deduplication | — |
 | `high_intent_action` | **Không deduplicate** — mỗi click hợp lệ đều fire | — |
+| `case_section_engaged` | **Không deduplicate** — mỗi event mang phần thời gian tích lũy mới kể từ event trước của cùng section (mục 5.1) | — |
 
 Quy tắc:
 
@@ -72,13 +74,15 @@ Không khởi tạo hoặc gửi bất kỳ Mixpanel event nào khi:
 * Có authenticated admin session.  
 * URL có `?preview=true`.  
 * Website chạy trên localhost/development.  
-* Website chạy trên non-production preview deployment.
+* Website chạy trên non-production preview deployment, **trừ** Preview QA đã opt-in: deployment Preview của đúng branch `integration/hardcoded-case-studies` (so khớp chính xác), với `NEXT_PUBLIC_MIXPANEL_QA_PREVIEW` đúng bằng `"true"` và có Mixpanel token. Thiếu bất kỳ điều kiện nào thì tracking tắt (fail-closed). Production không bị ảnh hưởng bởi cờ này.
+* Browser đã bật chế độ **internal QA** (mục 8.6): `?internal=1`.
 
 Ba case-related events sau chỉ được fire khi case có `status = published`:
 
 * `case_study_opened`  
 * `case_section_viewed`  
 * `case_study_completed`
+* `case_section_engaged`
 
 `portfolio_viewed` và `high_intent_action` vẫn được fire trên public website đối với non-admin visitors.
 
@@ -103,13 +107,14 @@ Nếu một case được chuyển từ `published` về `draft`:
 | `utm_source` | `cv` |
 | `utm_medium` | `application` |
 | `utm_campaign` | `chotot_pm` |
+| `utm_content` | `pm_resume` (chỉ khi URL có) |
 | `device_type` | `mobile` / `desktop` / `tablet` — tự detect qua viewport width, **không** phụ thuộc Mixpanel `$os`/`$browser` mặc định |
 
 ### `case_study_opened`
 
 | Property | Example |
 | :---- | :---- |
-| `case_id` | `vpbank` |
+| `case_id` | `vpbank-ai-debt-management-v2` |
 | `case_name` | `VPBank Debt Management` |
 | `entry_source` | `homepage` |
 | `display_position` | `1` |
@@ -118,9 +123,22 @@ Nếu một case được chuyển từ `published` về `draft`:
 
 | Property | Example |
 | :---- | :---- |
-| `case_id` | `vpbank` |
+| `case_id` | `vpbank-ai-debt-management-v2` |
 | `section_id` | `decision` |
 | `section_index` | `5` (xem quy tắc mục 5\) |
+
+### `case_section_engaged`
+
+| Property | Example |
+| :---- | :---- |
+| `case_id` | `vpbank-ai-debt-management-v2` |
+| `section_id` | `decision` |
+| `section_index` | `5` (cùng quy tắc với `case_section_viewed`) |
+| `engagement_seconds` | `12.3` (number, một chữ số thập phân, luôn > 0) |
+
+Cộng thêm UTM của session (khi có) và `device_type` như mọi event khác.
+
+> **`engagement_seconds` is an estimate of active section exposure, not verified human reading time.** Không dùng metric này làm bằng chứng recruiter đã đọc hoặc hiểu nội dung.
 
 ### `high_intent_action`
 
@@ -128,7 +146,7 @@ Nếu một case được chuyển từ `published` về `draft`:
 | :---- | :---- |
 | `action` | `download_cv` |
 | `location` | `case_footer` |
-| `case_id` | `vpbank` hoặc `null` nếu CTA nằm ngoài context 1 case |
+| `case_id` | `vpbank-ai-debt-management-v2` hoặc `null` nếu CTA nằm ngoài context 1 case |
 
 ---
 
@@ -245,6 +263,19 @@ Khi event qualify:
 
 `section_index` là vị trí thực tế của section trong `sections[]` của case tại thời điểm render. Không sử dụng số thứ tự chuẩn toàn cục của 9 section IDs.
 
+### 5.1. Rule cho `case_section_engaged`
+
+Ước lượng thời gian một section được hiển thị chủ động. Không thay thế `case_section_viewed` và không đổi điều kiện của nó.
+
+* **Phạm vi hiện tại:** chỉ 2 hardcoded case study — `momo-salary-v2` và `vpbank-ai-debt-management-v2`. Renderer database-driven `/work/[case_id]` **chưa** mount `SectionEngagementTracker`, nên các case đó chưa phát sinh event này.
+* **Chỉ một section được tính tại một thời điểm:** section đủ điều kiện visible (cùng quy tắc 50% section hoặc 50% viewport của mục 5) có phần hiển thị lớn nhất; hòa thì lấy section có index nhỏ hơn. Section chồng lấn không bị cộng trùng.
+* **Chỉ tính khi tab đang visible** (Page Visibility API) và **tối đa 60 giây sau lần tương tác cuối** (scroll, wheel, phím, pointer, touch). Thời gian im lặng lâu hơn không được tính.
+* **Tích lũy khi quay lại section.** Phần thời gian đã gửi được trừ đi, nên mỗi event mang **phần tăng thêm** kể từ event trước của section đó; tổng thời gian của một section là tổng `engagement_seconds`.
+* **Khi gửi:** rời section, tab bị ẩn, `pagehide`, hoặc rời/unmount case. Khi ẩn/rời trang dùng `sendBeacon` gửi ngay (bỏ qua batching).
+* **Không gửi** khoảng thời gian < 1 giây, bằng 0 hoặc không hợp lệ. Không có deduplication.
+* Đi qua cùng Analytics Service: cùng environment gating, loại trừ admin/preview, internal QA, UTM của session và `device_type`.
+* Đây là ước lượng mức độ section được hiển thị chủ động, **không phải** thời gian đọc đã được xác minh.
+
 ---
 
 ## 6\. Rule Case Completion
@@ -300,7 +331,7 @@ UTM phải phục vụ được hai nhu cầu:
 
 Khi landing URL có UTM:
 
-1. Đọc `utm_source`, `utm_medium`, `utm_campaign`.  
+1. Đọc `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` (xem 8.2a).
 2. Lưu các giá trị này vào `sessionStorage`.  
 3. Analytics Service tự động merge các giá trị UTM từ `sessionStorage` vào properties của tất cả Mixpanel events trong current session.
 
@@ -329,17 +360,32 @@ tất cả event trong flow phải giữ cùng UTM của landing session.
 
 Khi browser session kết thúc, session-level UTM có thể hết hiệu lực.
 
+### **8.2a. Cập nhật triển khai (UTM theo từng tab, new-tab fallback, internal QA)**
+
+* **Bốn key:** `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`. Giá trị rỗng bị bỏ qua. Landing URL có UTM nào thì thay thế toàn bộ bộ UTM cũ của tab.
+* **Theo từng tab:** UTM lưu trong `sessionStorage` của tab và được merge vào **từng event** (không đăng ký làm Mixpanel super property, vì super property nằm trong `localStorage` và rò rỉ giữa các tab/visit).
+* **New-tab fallback (tab mới không có UTM):** chỉ nhận UTM từ bản ghi gần nhất trong `localStorage` khi **tất cả** đều đúng: URL không có UTM; tab chưa từng quyết định attribution; `document.referrer` cùng origin; bản ghi còn trong 30 phút (cửa sổ trượt); bản ghi không bị đánh dấu `ambiguous`.
+* **An toàn chống lẫn campaign:** nếu thấy một campaign khác trong lúc bản ghi còn hiệu lực thì bản ghi bị đánh dấu `ambiguous` (giữ đến khi hết hạn) và không tab mới nào được nhận fallback. UTM trên URL luôn thắng, rồi đến `sessionStorage` của chính tab. Link được copy, bookmark, gõ tay hoặc chia sẻ ngoài site (referrer rỗng/khác origin) không nhận attribution. Tab bắt đầu không có attribution ghi nhận quyết định đó và không nhận campaign nào về sau.
+* **Fail-open:** nếu storage không dùng được thì UTM tường minh trên URL vẫn hoạt động và không có lỗi nào được ném ra.
+
 ### **8.3. First-touch UTM**
 
 Khi anonymous visitor lần đầu truy cập bằng URL có UTM, gọi:
 
 mixpanel.people.set\_once()
 
-để lưu:
+**Triển khai hiện tại (code Production):** khi URL (hoặc new-tab fallback) có UTM, code gọi `mixpanel.people.set_once()` với **cùng tên property** với event-level: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` (chỉ những key có giá trị). Code **không** ghi các property `first_utm_source`, `first_utm_medium`, `first_utm_campaign`; các tên `first_utm_*` ở bản spec gốc không được dùng. Cần phân biệt:
 
-* `first_utm_source`  
-* `first_utm_medium`  
-* `first_utm_campaign`
+* **Event-level UTM:** property trên từng event, theo tab/session.
+* **People first-touch:** property `utm_*` trên profile, ghi bằng `set_once`, không bao giờ bị ghi đè.
+
+**Câu hỏi first-touch chưa giải quyết (dành cho Mixpanel MCP audit sắp tới):**
+
+1. Report/dashboard có đang đọc `first_utm_*` (không tồn tại) hay `utm_*` trên profile không.
+2. Profile ẩn danh (không gọi `identify()`) có thực sự được tạo và nhận `set_once` trên Mixpanel không.
+3. `set_once` hoạt động theo từng property: lần đầu chỉ có `utm_source` thì `utm_content` của một campaign khác ở lần sau vẫn có thể được ghi vào cùng profile, tạo first-touch lai.
+4. Tên property `utm_*` trên profile trùng tên với event-level, nên cần kiểm tra không bị nhầm trong breakdown.
+5. Có cần đổi tên sang `first_utm_*` hay cập nhật spec: **chưa quyết định**, không đổi code hay tên property trong task này.
 
 Nếu visitor quay lại bằng UTM khác:
 
@@ -381,6 +427,14 @@ Nếu landing URL không có UTM:
 * Bỏ các UTM properties khỏi event nếu current session không có UTM. Không gửi chuỗi rỗng, `"unknown"` hoặc giá trị giả.  
 * Không ghi đè first-touch UTM đã tồn tại.  
 * Mixpanel vẫn sử dụng anonymous persistent visitor ID bình thường.
+
+---
+
+### **8.6. Internal QA opt-out**
+
+* `?internal=1` đặt cờ `portfolio_internal_qa` trong `localStorage` và xóa UTM đã lưu; `?internal=0` xóa cờ. Không có tham số thì cờ đã lưu quyết định. Tham số được áp dụng một lần mỗi lần tải trang.
+* Khi bật, `mixpanel.init` không bao giờ được gọi: không có request `/track` hoặc `/engage`, không có `$opt_in`, không capture hay `set_once` UTM, không ghi deduplication key. Cờ cũng được kiểm tra lại cho từng event nên chuyển chế độ giữa chừng cũng dừng một SDK đã khởi tạo.
+* Cờ theo từng origin: cần đặt một lần trên Production và một lần trên mỗi Preview origin.
 
 ---
 
@@ -692,7 +746,7 @@ Public website:
 * Đọc case config từ database-backed page data.  
 * Không hardcode VPBank, MoMo hoặc future case trong analytics logic.  
 * Tự hiển thị case mới sau khi publish.  
-* Tự sử dụng 5 event hiện có.
+* Tự sử dụng 6 event hiện có.
 
 ### **Analytics architecture**
 
@@ -706,7 +760,7 @@ Check Environment/Admin/Preview/Status
             ↓  
 Merge Session UTM  
             ↓  
-5 Standardized Mixpanel Events
+6 Standardized Mixpanel Events
 
 UI components không được gọi trực tiếp:
 
@@ -810,6 +864,9 @@ Public tracking
 | :---- | :---- |
 | Mở homepage production từ URL có UTM | `portfolio_viewed` fire một lần với đúng UTM |
 | Mở published case | `case_study_opened` fire với đúng case properties |
+| Ở lại một section của MoMo/VPBank rồi cuộn sang section khác | `case_section_engaged` fire với `engagement_seconds` > 0, đúng `case_id`/`section_id`, UTM và `device_type` |
+| Ẩn tab / đóng tab khi đang ở một section | Phần thời gian chưa gửi được gửi một lần, không gửi thời gian khi tab ẩn |
+| `?internal=1` | Không có request Mixpanel nào, kể cả `case_section_engaged` |
 | Scroll nhanh qua section | Không fire `case_section_viewed` |
 | Dừng section ≥2 giây | Fire một `case_section_viewed` |
 | Xem lại cùng section trong session | Không duplicate |
@@ -850,7 +907,7 @@ Admin và preview exclusion
 | Local development | Chỉ debug log, không gửi Mixpanel production |
 | :---- | :---- |
 
-| Vercel/non-production preview deployment | Không gửi Mixpanel production  |
+| Vercel/non-production preview deployment | Không gửi Mixpanel production; chỉ Preview QA của đúng branch được phê duyệt (mục 2) mới gửi, với token QA riêng |
 | :---- | :---- |
 
 ### **CMS validation**
@@ -900,7 +957,7 @@ Không track:
 * `case_abandoned`.  
 * Exit section.  
 * Scroll depth theo phần trăm.  
-* Average time làm success metric.  
+* Average time làm success metric (`case_section_engaged` chỉ là chỉ số tham khảo về mức độ hiển thị chủ động, không phải success metric).
 * Admin behavior.  
 * Draft/preview behavior.  
 * Real recruiter identity.  
@@ -930,3 +987,35 @@ Giữ nguyên chuỗi tracking chính:
 > → Completion  
 > → High Intent  
 >   
+
+## 17\. Trạng thái tracking theo portfolio piece (IMPLEMENTED / PLANNED)
+
+| Piece | `case_id` | Trạng thái |
+| :---- | :---- | :---- |
+| MoMo case study | `momo-salary-v2` | **IMPLEMENTED** — cả 6 event |
+| VPBank case study | `vpbank-ai-debt-management-v2` | **IMPLEMENTED** — cả 6 event |
+| Product Research | `product-research` (tạm thời) | **PLANNED — NOT IMPLEMENTED** |
+
+### 17.1. Product Research (PLANNED — chưa triển khai)
+
+Mọi nội dung dưới đây là **kế hoạch**, chưa có code, route hay nội dung. Không dùng làm cơ sở cho QA hay dashboard cho đến khi triển khai xong.
+
+* **Kiến trúc đã quyết định:** trang **standalone long-scroll**, đồng thời có **entry card trong section Selected Work** của homepage, cạnh MoMo và VPBank. **Route slug chưa chốt** — quyết định khi triển khai.
+* **Định danh tạm thời** (xác nhận khi triển khai): `case_id` = `product-research`, `case_name` = `Independent Product Research`.
+* **Tái sử dụng đúng 6 event hiện có, không thêm event mới:** `case_study_opened`, `case_section_viewed`, `case_section_engaged`, `case_study_completed` (xem completion bên dưới) và `high_intent_action` (action/location hiện có); `portfolio_viewed` vẫn chỉ ở homepage. Không event riêng theo từng case (mục 2).
+* **Section:** không định nghĩa `section_id`, tên hay thứ tự ở đây. Chúng phải lấy từ nội dung Product Research đã chốt và DOM thực tế khi triển khai. `case_section_engaged` giữ nguyên hành vi hiện tại (mục 5.1), dùng đúng các id đó.
+* **Completion — ứng viên tái sử dụng, CHƯA chốt:** quy tắc hiện tại (mục 6: `completion_section` qualify theo mục 5, ≥2 giây, rồi mới fire `case_study_completed`) là ứng viên. Chỉ tái sử dụng nếu cấu trúc trang thực tế có một section cuối là điểm kết thúc tự nhiên; nếu không, cần đề xuất và phê duyệt quy tắc khác. Không chốt trước khi có cấu trúc trang.
+* **`display_position`:** Product Research nằm trong Selected Work, nên giá trị lấy từ thứ tự card cuối cùng trên homepage. **Chưa gán giá trị cố định.** `entry_source` dùng danh sách giá trị hiện có.
+* **Không thay đổi:** UTM attribution (mục 8), environment gating, loại trừ admin/preview, internal QA (mục 8.6) và dedup.
+* **Dashboard:** dùng lại dashboard "Hoakimphan-Portfolio Recruiter Engagement" và 4 report đã lưu (01 — Case Study Interest, 02 — Section Engagement, 03 — Case Completion Rate, 04 — Contact Intent by Action & Location). Không tạo dashboard, report hay event mới. **Sau khi triển khai phải kiểm tra** các report này có tính Product Research đúng (ví dụ filter theo `case_id`, breakdown theo `section_id`, định nghĩa completion) trước khi diễn giải số liệu.
+
+---
+
+## Changelog
+
+| Ngày | Commit | Thay đổi |
+| :---- | :---- | :---- |
+| 2026-10-27 | `6bbaa14` (#2) | UTM theo phạm vi tab/session, gửi ở cấp event, không dùng super property |
+| 2026-10-30 | `a5a0121` (#3) | New-tab UTM fallback có bảo vệ `ambiguous`; internal QA opt-out `?internal=1` / `?internal=0` |
+| 2026-10-31 | `433ce7e26209d8f2cd96c5f79549a4e222df2c3d` (#4) | Thêm event `case_section_engaged` cho 2 hardcoded case study (`momo-salary-v2`, `vpbank-ai-debt-management-v2`); chưa hỗ trợ renderer `/work/[case_id]` |
+| 2026-10-31 | Tài liệu | Đồng bộ tài liệu về 6 event; UTM 4 key; mô tả đúng event-level UTM và `set_once` (`utm_*`, không `first_utm_*`); thêm kế hoạch Product Research (PLANNED) |
