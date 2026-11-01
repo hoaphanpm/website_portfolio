@@ -77,12 +77,13 @@ Không khởi tạo hoặc gửi bất kỳ Mixpanel event nào khi:
 * Website chạy trên non-production preview deployment, **trừ** Preview QA đã opt-in: deployment Preview của đúng branch `integration/hardcoded-case-studies` (so khớp chính xác), với `NEXT_PUBLIC_MIXPANEL_QA_PREVIEW` đúng bằng `"true"` và có Mixpanel token. Thiếu bất kỳ điều kiện nào thì tracking tắt (fail-closed). Production không bị ảnh hưởng bởi cờ này.
 * Browser đã bật chế độ **internal QA** (mục 8.6): `?internal=1`.
 
-Ba case-related events sau chỉ được fire khi case có `status = published`:
+Ba case-related events sau chỉ được fire khi case **database-driven** (`/work/[case_id]`) có `status = published`:
 
 * `case_study_opened`  
 * `case_section_viewed`  
 * `case_study_completed`
-* `case_section_engaged`
+
+**Hai hardcoded case study** (`momo-salary-v2`, `vpbank-ai-debt-management-v2`) không phụ thuộc kiểm tra `status = published` trong database. Chúng dùng cổng tracking hiện có: production environment, không có admin session, không có `?preview=true` (cộng với cờ bật event cố định của từng trang, hiện đang bật). `case_section_engaged` hiện chỉ chạy trên hai case này; renderer database-driven chưa mount tracker nên không phát sinh event này. Product Research vẫn là **PLANNED, NOT IMPLEMENTED** (mục 17).
 
 `portfolio_viewed` và `high_intent_action` vẫn được fire trên public website đối với non-admin visitors.
 
@@ -773,7 +774,7 @@ Analytics Service chịu trách nhiệm:
 * Kiểm tra production environment.  
 * Kiểm tra authenticated admin session.  
 * Kiểm tra preview mode.  
-* Kiểm tra case status với case-related events.  
+* Kiểm tra case status với case-related events (chỉ với case database-driven; hai hardcoded case study dùng cổng tracking của trang).
 * Merge current-session UTM.  
 * Validate event name.  
 * Validate properties.  
