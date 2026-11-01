@@ -11,14 +11,8 @@
  *  - Everything else (local dev, unknown/missing environment): OFF.
  */
 
-/**
- * The only Preview branches that may opt in to QA tracking (exact match).
- * The feature branch is temporary: remove it before PR #4 is merged.
- */
-export const QA_PREVIEW_BRANCHES = [
-  "integration/hardcoded-case-studies",
-  "feature/section-engagement-tracking",
-] as const;
+/** The only Preview branches that may opt in to QA tracking (exact match). */
+export const QA_PREVIEW_BRANCHES = ["integration/hardcoded-case-studies"] as const;
 export const QA_PREVIEW_BRANCH = QA_PREVIEW_BRANCHES[0];
 
 /**
